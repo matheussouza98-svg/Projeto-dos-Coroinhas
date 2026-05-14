@@ -45,26 +45,22 @@ export default function Escala({ navigation }) {
               style={styles.dropdownItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Formacao');
+                navigation.navigate('Oracoes');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Formação</Text>
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Orações</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Settings');
+                navigation.navigate('Perfil');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Configurações</Text>
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Perfil</Text>
             </TouchableOpacity>
           </View>
         )}
-
-        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.logoutText}>Sair</Text>
-        </TouchableOpacity>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={styles.sectionTitle}>Escala de Serviço - Próximas Missas</Text>
@@ -133,7 +129,6 @@ const styles = StyleSheet.create({
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
   dropdownText: { color: '#000', fontSize: 18, fontWeight: 'normal' },
   dropdownTextLarge: { fontSize: 20, fontWeight: 'normal' },
-  logoutButton: { position: 'absolute', top: 12, right: 12, padding: 8, backgroundColor: '#C62828', borderRadius: 6, zIndex: 20 },
   logoutText: { color: '#fff', fontWeight: 'bold' },
   eventTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 6, color: '#333' },
   eventText: { fontSize: 14, color: '#333', marginBottom: 2 },

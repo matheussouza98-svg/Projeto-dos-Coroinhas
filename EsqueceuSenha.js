@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
 
   inputErro: {
-    borderColor: "#C62828",
+    borderColor: "#001830",
   },
 
   erroTexto: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
 
   button: {
     height: 50,
-    backgroundColor: "#C62828",
+    backgroundColor: "#001830",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",

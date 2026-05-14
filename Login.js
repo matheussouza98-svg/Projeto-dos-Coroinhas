@@ -21,7 +21,7 @@ export default function Login({ navigation }) {
 
   const handleLogin = () => {
     if (email === 'matheus.souza98@aluno.ce.gov.br' && senha === '123456') {
-      navigation.navigate('Inicio');
+      navigation.navigate('AppTabs');
     } else {
       alert('Seus dados estão incorretos');
     }
@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: '#001830'
   },
 
   subtitle: {
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
 
   button: {
     height: 48,
-    backgroundColor: '#C62828',
+    backgroundColor: '#001830',
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',

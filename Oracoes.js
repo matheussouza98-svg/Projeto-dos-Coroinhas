@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 
-export default function Configuracoes({ navigation }) {
+export default function Oracoes({ navigation }) {
   const [menuVisible, setMenuVisible] = useState(false);
 
   return (
@@ -45,62 +45,67 @@ export default function Configuracoes({ navigation }) {
               style={styles.dropdownItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Formacao');
+                navigation.navigate('Oracoes');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Formação</Text>
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Orações</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Settings');
+                navigation.navigate('Perfil');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Configurações</Text>
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Perfil</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.logoutText}>Sair</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.title}>Configurações</Text>
-
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Notificações</Text>
-            <Text style={styles.cardText}>
-              Ajuste como e quando deseja receber alertas sobre mensagens, eventos e novidades.
+          <Text style={styles.title}>Orações</Text>
+
+          <Text style={styles.message}>
+            A formação do coroinha é um processo fundamental para o serviço litúrgico.
+            {'\n\n'}
+            Ela envolve o aprendizado dos ritos sagrados, o desenvolvimento espiritual
+            e a preparação para auxiliar na celebração da Santa Missa.
+          </Text>
+
+          <Text style={styles.sectionTitle}>Conteúdos Essenciais:</Text>
+
+          <View style={styles.contentCard}>
+            <Text style={styles.contentTitle}>• Liturgia e Sacramentos</Text>
+            <Text style={styles.contentText}>
+              Conhecimento dos ritos litúrgicos, significado dos sacramentos, participação ativa na celebração
             </Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Privacidade</Text>
-            <Text style={styles.cardText}>
-              Gerencie quem vê suas informações e controle o acesso aos seus dados.
+          <View style={styles.contentCard}>
+            <Text style={styles.contentTitle}>• Música Sacra</Text>
+            <Text style={styles.contentText}>
+              Canto gregoriano básico, salmos responsoriais, hinos litúrgicos
             </Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Conta</Text>
-            <Text style={styles.cardText}>
-              Atualize seu e-mail, senha ou outras informações pessoais da sua conta.
+          <View style={styles.contentCard}>
+            <Text style={styles.contentTitle}>• Serviço no Altar</Text>
+            <Text style={styles.contentText}>
+              Posições e gestos corretos, manipulação dos objetos sagrados, coordenação durante a missa
             </Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Aparência</Text>
-            <Text style={styles.cardText}>
-              Escolha o tema e as preferências visuais do aplicativo.
+          <View style={styles.contentCard}>
+            <Text style={styles.contentTitle}>• Espiritualidade</Text>
+            <Text style={styles.contentText}>
+              Vida de oração pessoal, devoção eucarística, compromisso com a comunidade
             </Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Suporte</Text>
-            <Text style={styles.cardText}>
-              Encontre ajuda, perguntas frequentes e instruções para usar o app.
+          <View style={styles.contentCard}>
+            <Text style={styles.contentTitle}>• Disciplina e Pontualidade</Text>
+            <Text style={styles.contentText}>
+              Preparação espiritual, compromisso com os horários, responsabilidade no serviço
             </Text>
           </View>
         </ScrollView>
@@ -112,11 +117,19 @@ export default function Configuracoes({ navigation }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1, paddingTop: 40, paddingHorizontal: 20, position: 'relative' },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 20, textAlign: 'center' },
-  content: { flex: 1, marginTop: 10 },
-  card: { backgroundColor: '#f7f7f7', borderRadius: 12, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#ddd' },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#222', marginBottom: 8 },
-  cardText: { fontSize: 15, color: '#444', lineHeight: 22 },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 20 },
+  content: { flex: 1, marginTop: 20 },
+  message: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#000', marginBottom: 15, textAlign: 'center' },
+  contentCard: { backgroundColor: '#f2f2f2', borderRadius: 10, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#ccc' },
+  contentTitle: { fontSize: 16, fontWeight: 'bold', color: '#C62828', marginBottom: 8 },
+  contentText: { fontSize: 14, color: '#333', lineHeight: 20 },
   menuButton: { position: 'absolute', top: 12, left: 12, padding: 8, zIndex: 20 },
   menuIcon: { color: '#000', fontSize: 26, fontWeight: 'bold' },
   dropdownMenu: {
@@ -138,6 +151,5 @@ const styles = StyleSheet.create({
   dropdownItem: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
   dropdownText: { color: '#000', fontSize: 18, fontWeight: 'normal' },
   dropdownTextLarge: { fontSize: 20, fontWeight: 'normal' },
-  logoutButton: { position: 'absolute', top: 12, right: 12, padding: 8, backgroundColor: '#C62828', borderRadius: 6, zIndex: 20 },
   logoutText: { color: '#fff', fontWeight: 'bold' },
 });

@@ -2,35 +2,31 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SplashScreen from './SplashScreen'; 
+import SplashScreen from './SplashScreen';
 import Login from './Login';
 import Cadastro from './Cadastro';
 import EsqueceuSenha from './EsqueceuSenha';
 import CodigoVerificacao from './CodigoVerificacao';
 import NovaSenha from './NovaSenha';
-import Escala from './Escala';
-import Formacao from './Formacao';
-import Configuracoes from './Configuracoes'; 
-import Inicio from './Inicio';
+
+import AppTabs from './AppTabs';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
         <Stack.Screen name="EsqueceuSenha" component={EsqueceuSenha} />
         <Stack.Screen name="CodigoVerificacao" component={CodigoVerificacao} />
-        <Stack.Screen name="Inicio" component={Inicio} />
         <Stack.Screen name="NovaSenha" component={NovaSenha} />
-        <Stack.Screen name="Escala" component={Escala} />
-        <Stack.Screen name="Formacao" component={Formacao} />
-        <Stack.Screen name="Settings" component={Configuracoes} />
+
+        {/* APP PRINCIPAL */}
+        <Stack.Screen name="AppTabs" component={AppTabs} />
 
       </Stack.Navigator>
     </NavigationContainer>

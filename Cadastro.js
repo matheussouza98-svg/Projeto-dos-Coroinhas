@@ -190,7 +190,7 @@ const styles = {
 
   titulo: {
     textAlign: "center",
-    color: "red",
+    color: "#001830",
     marginBottom: "20px",
   },
 
@@ -216,7 +216,7 @@ const styles = {
   },
 
   botao: {
-    backgroundColor: "red",
+    backgroundColor: "#001830",
     color: "white",
     border: "none",
     borderRadius: "14px",
