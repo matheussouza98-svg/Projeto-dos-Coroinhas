@@ -40,7 +40,7 @@ export default function Login({ navigation }) {
           <View style={styles.container}>
 
             <Image
-              source={require('./assets/background.png')}
+              source={require('./assets/background1.png')}
               style={styles.logo}
               resizeMode="contain"
             />
