@@ -20,7 +20,7 @@ export default function Login({ navigation }) {
   const [senha, setSenha] = useState('');
 
   const handleLogin = () => {
-    if (email === 'matheus.souza98@aluno.ce.gov.br' && senha === '123456') {
+    if (email === 'teste@teste' && senha === '123456') {
       navigation.navigate('AppTabs');
     } else {
       alert('Seus dados estão incorretos');
