@@ -102,7 +102,7 @@ export default function Inicio({ navigation }) {
                 </Text>
 
                 <Text style={styles.numberText}>
-                  26
+                  24
                 </Text>
 
                 <Text style={styles.monthText}>
@@ -203,7 +203,7 @@ export default function Inicio({ navigation }) {
 
                 <View>
                   <Text style={styles.noticeCardTitle}>
-                    Escala de Coroinhas
+                    Escalas de Coroinhas
                   </Text>
 
                   <Text style={styles.noticeCardText}>

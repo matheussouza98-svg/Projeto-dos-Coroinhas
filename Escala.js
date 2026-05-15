@@ -44,7 +44,7 @@ export default function Escala({ navigation }) {
                 navigation.navigate('Escala');
               }}
             >
-              <Text style={styles.dropdownText}>Escalas</Text>
+              <Text style={styles.dropdownText}>Escala</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -95,82 +95,15 @@ export default function Escala({ navigation }) {
 
             <View style={styles.dataBox}>
               <Text style={styles.dataDiaSemana}>DOM</Text>
-              <Text style={styles.dataNumero}>26</Text>
-              <Text style={styles.dataMes}>MAI</Text>
-            </View>
-
-            <View style={styles.cardInfo}>
-              <Text style={styles.horario}>
-                18h00 • Matriz São José
-              </Text>
-
-              <Text style={styles.info}>
-                Cruz: Matheus
-              </Text>
-
-              <Text style={styles.info}>
-                Vela 1: João
-              </Text>
-
-              <Text style={styles.info}>
-                Vela 2: Lucas
-              </Text>
-
-              <Text style={styles.info}>
-                Turíbulo: Gabriel
-              </Text>
-            </View>
-
-          </View>
-
-          {/* CARD 2 */}
-          <View style={styles.card}>
-
-            <View style={styles.dataBox}>
-              <Text style={styles.dataDiaSemana}>DOM</Text>
-              <Text style={styles.dataNumero}>02</Text>
-              <Text style={styles.dataMes}>JUN</Text>
-            </View>
-
-            <View style={styles.cardInfo}>
-              <Text style={styles.horario}>
-                18h00 • Matriz São José
-              </Text>
-
-              <Text style={styles.info}>
-                Cruz: Lucas
-              </Text>
-
-              <Text style={styles.info}>
-                Vela 1: Pedro
-              </Text>
-
-              <Text style={styles.info}>
-                Vela 2: Miguel
-              </Text>
-
-              <Text style={styles.info}>
-                Turíbulo: Matheus
-              </Text>
-            </View>
-
-          </View>
-
-          {/* CARD 3 */}
-          <View style={styles.card}>
-
-            <View style={styles.dataBox}>
-              <Text style={styles.dataDiaSemana}>DOM</Text>
               <Text style={styles.dataNumero}>24</Text>
               <Text style={styles.dataMes}>MAI</Text>
             </View>
 
-            <View style={styles.cardInfo}>
+ <View style={styles.cardInfo}>
               <Text style={styles.horario}>
                 08hs - Matriz Nossa Senhora de Nazaré.
               </Text>
-
-              <Text style={styles.info}>
+             <Text style={styles.info}>
                 Turíbulo: João
               </Text>
 
@@ -194,7 +127,56 @@ export default function Escala({ navigation }) {
                 Misal: Matheus
               </Text>
 
+            </View>
 
+          </View>
+
+          {/* CARD 2 */}
+          <View style={styles.card}>
+
+            <View style={styles.dataBox}>
+              <Text style={styles.dataDiaSemana}>QUI</Text>
+              <Text style={styles.dataNumero}>28</Text>
+              <Text style={styles.dataMes}>MAI</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.horario}>
+                19hs • Matriz Nossa Senhora de Nazaré.
+              </Text>
+
+              <Text style={styles.info}>
+                Servir: Pedro e Lucas
+              </Text>
+
+              <Text style={styles.info}>
+                Sino: Pedro
+              </Text>
+            </View>
+
+          </View>
+
+          {/* CARD 3 */}
+          <View style={styles.card}>
+
+            <View style={styles.dataBox}>
+              <Text style={styles.dataDiaSemana}>SEX</Text>
+              <Text style={styles.dataNumero}>29</Text>
+              <Text style={styles.dataMes}>MAI</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.horario}>
+                08hs - Matriz Nossa Senhora de Nazaré.
+              </Text>
+
+              <Text style={styles.info}>
+                Servir: Gabriel e Pedro
+              </Text>
+
+               <Text style={styles.info}>
+                Sino: Gabriel
+              </Text>
             </View>
 
           </View>
