@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 export default function Cadastro({ navigation }) {
+
   const [form, setForm] = useState({
     nome: "",
     nascimento: "",
@@ -13,48 +14,174 @@ export default function Cadastro({ navigation }) {
     autorizacao: false,
   });
 
+  // ✅ ERROS
+  const [erro, setErro] = useState("");
+  const [erroTelefone, setErroTelefone] = useState("");
+  const [erroTelResponsavel, setErroTelResponsavel] = useState("");
+  const [camposErro, setCamposErro] = useState([]);
+
+  // ✅ SUCESSO
+  const [sucesso, setSucesso] = useState("");
+
   function handleChange(e) {
+
     const { name, value, type, checked } = e.target;
+
+    let novoValor = value;
+
+    // ✅ TELEFONES
+    if (
+      name === "telefone" ||
+      name === "telResponsavel"
+    ) {
+
+      // REMOVE LETRAS
+      novoValor = value.replace(/\D/g, "");
+
+      // LIMITE 11 NÚMEROS
+      novoValor = novoValor.slice(0, 11);
+    }
+
     setForm({
       ...form,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox"
+        ? checked
+        : novoValor,
     });
+
+    // REMOVE BORDA VERMELHA
+    if (camposErro.includes(name)) {
+      setCamposErro(
+        camposErro.filter((campo) => campo !== name)
+      );
+    }
+
+    // ✅ REMOVE ERRO TELEFONE AO DIGITAR
+    if (name === "telefone") {
+      setErroTelefone("");
+    }
+
+    if (name === "telResponsavel") {
+      setErroTelResponsavel("");
+    }
   }
 
   function handleSubmit(e) {
+
     e.preventDefault();
 
-    // 🔴 VALIDAÇÕES
-    if (
-      !form.nome ||
-      !form.email ||
-      !form.senha ||
-      !form.confirmarSenha
-    ) {
-      alert("Preencha todos os campos obrigatórios!");
+    let erros = [];
+
+    // ✅ LIMPA ERROS
+    setErro("");
+    setErroTelefone("");
+    setErroTelResponsavel("");
+
+    // ✅ CAMPOS VAZIOS
+    Object.keys(form).forEach((campo) => {
+
+      if (
+        campo !== "autorizacao" &&
+        form[campo].trim() === ""
+      ) {
+        erros.push(campo);
+      }
+
+    });
+
+    setCamposErro(erros);
+
+    // ✅ ERRO CAMPOS
+    if (erros.length > 0) {
+
+      setErro("Preencha todos os campos obrigatórios.");
+      setSucesso("");
+
       return;
     }
 
+    // ✅ TELEFONE INVÁLIDO
+    if (form.telefone.length < 10) {
+
+      setCamposErro((prev) => [
+        ...prev,
+        "telefone"
+      ]);
+
+      setErroTelefone(
+        "Digite um telefone válido."
+      );
+
+      setSucesso("");
+
+      return;
+    }
+
+    // ✅ TELEFONE RESPONSÁVEL INVÁLIDO
+    if (form.telResponsavel.length < 10) {
+
+      setCamposErro((prev) => [
+        ...prev,
+        "telResponsavel"
+      ]);
+
+      setErroTelResponsavel(
+        "Digite um telefone válido."
+      );
+
+      setSucesso("");
+
+      return;
+    }
+
+    // ✅ SENHAS DIFERENTES
     if (form.senha !== form.confirmarSenha) {
-      alert("As senhas não coincidem!");
+
+      setCamposErro([
+        "senha",
+        "confirmarSenha"
+      ]);
+
+      setErro("As senhas não coincidem.");
+      setSucesso("");
+
       return;
     }
 
+    // ✅ CHECKBOX
     if (!form.autorizacao) {
-      alert("Você precisa autorizar o uso dos dados.");
+
+      setErro("Autorize o uso dos dados.");
+      setSucesso("");
+
       return;
     }
 
-    // 🔵 SALVAR USUÁRIO NO LOCALSTORAGE
-    localStorage.setItem("usuario", JSON.stringify(form));
+    // ✅ LIMPA ERROS
+    setErro("");
+    setCamposErro([]);
 
-    alert("Cadastro realizado com sucesso!");
+    // ✅ SALVAR
+    localStorage.setItem(
+      "usuario",
+      JSON.stringify(form)
+    );
 
-    navigation.navigate("Login");
+    // ✅ SUCESSO
+    setSucesso(
+      "Cadastro realizado com sucesso!"
+    );
+
+    // ✅ REDIRECIONA
+    setTimeout(() => {
+      navigation.navigate("Login");
+    }, 1000);
   }
 
   return (
+
     <div style={styles.page}>
+
       <span
         style={styles.voltar}
         onClick={() => navigation.navigate("Login")}
@@ -63,12 +190,25 @@ export default function Cadastro({ navigation }) {
       </span>
 
       <div style={styles.container}>
-        <h1 style={styles.titulo}>Cadastro</h1>
 
-        <form style={styles.form} onSubmit={handleSubmit}>
+        <h1 style={styles.titulo}>
+          Cadastro
+        </h1>
+
+        <form
+          style={styles.form}
+          onSubmit={handleSubmit}
+        >
+
           <label>Nome completo:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("nome")
+                ? styles.inputErro
+                : {})
+            }}
             type="text"
             name="nome"
             placeholder="Digite seu nome completo"
@@ -77,8 +217,14 @@ export default function Cadastro({ navigation }) {
           />
 
           <label>Data de nascimento:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("nascimento")
+                ? styles.inputErro
+                : {})
+            }}
             type="date"
             name="nascimento"
             value={form.nascimento}
@@ -86,18 +232,38 @@ export default function Cadastro({ navigation }) {
           />
 
           <label>Telefone:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("telefone")
+                ? styles.inputErro
+                : {})
+            }}
             type="tel"
             name="telefone"
-            placeholder="Digite seu telefone"
+            placeholder="(99) 99999-9999"
             value={form.telefone}
             onChange={handleChange}
+            maxLength={11}
           />
 
+          {/* ✅ ERRO TELEFONE */}
+          {erroTelefone !== "" && (
+            <div style={styles.textoErro}>
+              {erroTelefone}
+            </div>
+          )}
+
           <label>Nome do responsável:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("responsavel")
+                ? styles.inputErro
+                : {})
+            }}
             type="text"
             name="responsavel"
             placeholder="Digite o nome do responsável"
@@ -106,18 +272,38 @@ export default function Cadastro({ navigation }) {
           />
 
           <label>Telefone do responsável:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("telResponsavel")
+                ? styles.inputErro
+                : {})
+            }}
             type="tel"
             name="telResponsavel"
-            placeholder="Digite o telefone do responsável"
+            placeholder="(99) 99999-9999"
             value={form.telResponsavel}
             onChange={handleChange}
+            maxLength={11}
           />
 
+          {/* ✅ ERRO TELEFONE RESPONSÁVEL */}
+          {erroTelResponsavel !== "" && (
+            <div style={styles.textoErro}>
+              {erroTelResponsavel}
+            </div>
+          )}
+
           <label>E-mail:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("email")
+                ? styles.inputErro
+                : {})
+            }}
             type="email"
             name="email"
             placeholder="Digite seu email"
@@ -126,8 +312,14 @@ export default function Cadastro({ navigation }) {
           />
 
           <label>Senha:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("senha")
+                ? styles.inputErro
+                : {})
+            }}
             type="password"
             name="senha"
             placeholder="Digite sua senha"
@@ -136,8 +328,14 @@ export default function Cadastro({ navigation }) {
           />
 
           <label>Confirmar senha:</label>
+
           <input
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(camposErro.includes("confirmarSenha")
+                ? styles.inputErro
+                : {})
+            }}
             type="password"
             name="confirmarSenha"
             placeholder="Confirme sua senha"
@@ -145,26 +343,62 @@ export default function Cadastro({ navigation }) {
             onChange={handleChange}
           />
 
+          {/* ✅ ERRO */}
+          {erro !== "" && (
+            <div style={styles.textoErro}>
+              {erro}
+            </div>
+          )}
+
           <div style={styles.checkbox}>
+
             <input
               type="checkbox"
               name="autorizacao"
               checked={form.autorizacao}
               onChange={handleChange}
             />
-            <span>Autorizo o uso dos dados para fins pastorais</span>
+
+            <span>
+              Autorizo o uso dos dados para fins pastorais
+            </span>
+
           </div>
-          
-          <button type="submit" style={styles.botao}>
+
+          {/* ✅ SUCESSO */}
+          {sucesso !== "" && (
+
+            <div style={styles.sucessoBox}>
+
+              <span style={styles.sucessoIcon}>
+                ✓
+              </span>
+
+              <span style={styles.sucessoTexto}>
+                {sucesso}
+              </span>
+
+            </div>
+
+          )}
+
+          <button
+            type="submit"
+            style={styles.botao}
+          >
             Cadastrar
           </button>
+
         </form>
+
       </div>
+
     </div>
   );
 }
 
 const styles = {
+
   page: {
     minHeight: "100vh",
     width: "100%",
@@ -184,7 +418,7 @@ const styles = {
   },
 
   container: {
-    maxWidth: "450px",
+    maxWidth: "380px",
     margin: "0 auto",
   },
 
@@ -200,11 +434,51 @@ const styles = {
   },
 
   input: {
-    padding: "10px",
-    borderRadius: "12px",
-    border: "1px solid #999",
+    height: "48px",
+    backgroundColor: "#F2F2F2",
+    borderRadius: "14px",
+    padding: "0 14px",
+    marginBottom: "15px",
+    border: "none",
     fontSize: "14px",
+    outline: "none",
+  },
+
+  // ✅ BORDA VERMELHA
+  inputErro: {
+    border: "2px solid #FF3B30",
+  },
+
+  // ✅ TEXTO ERRO
+  textoErro: {
+    color: "#FF3B30",
+    fontSize: "13px",
+    marginTop: "-5px",
     marginBottom: "10px",
+  },
+
+  // ✅ SUCESSO
+  sucessoBox: {
+    backgroundColor: "#DFF7E3",
+    border: "1px solid #28C76F",
+    color: "#28C76F",
+    padding: "12px",
+    borderRadius: "14px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "15px",
+  },
+
+  sucessoIcon: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    color: "#28C76F",
+  },
+
+  sucessoTexto: {
+    fontSize: "14px",
+    fontWeight: "bold",
   },
 
   checkbox: {
@@ -226,4 +500,5 @@ const styles = {
     cursor: "pointer",
     width: "100%",
   },
+
 };

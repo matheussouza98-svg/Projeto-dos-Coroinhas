@@ -15,91 +15,156 @@ import {
 const { width } = Dimensions.get("window");
 
 export default function NovaSenha({ navigation }) {
+
   const [senha, setSenha] = useState("");
   const [confirmar, setConfirmar] = useState("");
   const [erro, setErro] = useState("");
 
+  // ✅ SUCESSO
+  const [sucesso, setSucesso] = useState("");
+
   function redefinir() {
+
     if (!senha && !confirmar) {
       setErro("Preencha todos os campos");
+      setSucesso("");
       return;
     }
 
     if (!senha) {
       setErro("Digite a nova senha");
+      setSucesso("");
       return;
     }
 
     if (!confirmar) {
       setErro("Confirme a nova senha");
+      setSucesso("");
       return;
     }
 
     if (senha !== confirmar) {
       setErro("As senhas não coincidem");
+      setSucesso("");
       return;
     }
 
+    // ✅ LIMPA ERRO
     setErro("");
-    alert("Senha redefinida com sucesso!");
-    navigation.navigate("Login");
+
+    // ✅ MOSTRA SUCESSO
+    setSucesso("Senha redefinida com sucesso!");
+
+    // ✅ REDIRECIONA
+    setTimeout(() => {
+      navigation.navigate("Login");
+    }, 1000);
   }
 
   return (
     <SafeAreaView style={styles.safe}>
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+
         <ScrollView contentContainerStyle={styles.scroll}>
+
           <View style={styles.page}>
+
             <TouchableOpacity
               style={styles.backLink}
               onPress={() => navigation.goBack()}
             >
-              <Text style={styles.backLinkText}>{'<'} Voltar</Text>
+              <Text style={styles.backLinkText}>
+                {'<'} Voltar
+              </Text>
             </TouchableOpacity>
 
             <View style={styles.container}>
-              <Text style={styles.title}>Nova Senha</Text>
 
-            <TextInput
-              style={[styles.input, erro ? styles.inputErro : null]}
-              placeholder="Digite a nova senha"
-              secureTextEntry
-              value={senha}
-              onChangeText={(text) => {
-                setSenha(text);
-                setErro("");
-              }}
-            />
+              <Text style={styles.title}>
+                Nova Senha
+              </Text>
 
-            <TextInput
-              style={[styles.input, erro ? styles.inputErro : null]}
-              placeholder="Confirme a nova senha"
-              secureTextEntry
-              value={confirmar}
-              onChangeText={(text) => {
-                setConfirmar(text);
-                setErro("");
-              }}
-            />
+              <TextInput
+                style={[
+                  styles.input,
+                  erro ? styles.inputErro : null
+                ]}
+                placeholder="Digite a nova senha"
+                secureTextEntry
+                value={senha}
+                onChangeText={(text) => {
+                  setSenha(text);
+                  setErro("");
+                }}
+              />
 
-            {erro ? <Text style={styles.erroTexto}>{erro}</Text> : null}
+              <TextInput
+                style={[
+                  styles.input,
+                  erro ? styles.inputErro : null
+                ]}
+                placeholder="Confirme a nova senha"
+                secureTextEntry
+                value={confirmar}
+                onChangeText={(text) => {
+                  setConfirmar(text);
+                  setErro("");
+                }}
+              />
 
-            <TouchableOpacity style={styles.button} onPress={redefinir}>
-              <Text style={styles.buttonText}>Redefinir senha</Text>
-            </TouchableOpacity>
+              {/* ✅ ERRO */}
+              {erro ? (
+                <Text style={styles.erroTexto}>
+                  {erro}
+                </Text>
+              ) : null}
+
+              {/* ✅ SUCESSO */}
+              {sucesso ? (
+                <View style={styles.sucessoBox}>
+
+                  <Text style={styles.sucessoIcon}>
+                    ✓
+                  </Text>
+
+                  <Text style={styles.sucessoTexto}>
+                    {sucesso}
+                  </Text>
+
+                </View>
+              ) : null}
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={redefinir}
+              >
+                <Text style={styles.buttonText}>
+                  Redefinir senha
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+
           </View>
-        </View>
+
         </ScrollView>
+
       </KeyboardAvoidingView>
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+
+  safe: {
+    flex: 1,
+    backgroundColor: "#fff"
+  },
 
   scroll: {
     flexGrow: 1,
@@ -156,6 +221,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  // ✅ SUCESSO
+  sucessoBox: {
+    backgroundColor: "#DFF7E3",
+    borderWidth: 1,
+    borderColor: "#28C76F",
+    padding: 12,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+    gap: 8,
+  },
+
+  sucessoIcon: {
+    color: "#28C76F",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+
+  sucessoTexto: {
+    color: "#28C76F",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+
   button: {
     height: 48,
     backgroundColor: "#001830",
@@ -174,4 +264,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
+
 });
