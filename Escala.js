@@ -14,6 +14,8 @@ export default function Escala({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
+
+        {/* MENU */}
         <TouchableOpacity
           style={styles.menuButton}
           onPress={() => setMenuVisible(v => !v)}
@@ -21,8 +23,10 @@ export default function Escala({ navigation }) {
           <Text style={styles.menuIcon}>≡</Text>
         </TouchableOpacity>
 
+        {/* MENU DROPDOWN */}
         {menuVisible && (
           <View style={styles.dropdownMenu}>
+
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => {
@@ -30,8 +34,9 @@ export default function Escala({ navigation }) {
                 navigation.navigate('Inicio');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Início</Text>
+              <Text style={styles.dropdownText}>Início</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => {
@@ -39,8 +44,9 @@ export default function Escala({ navigation }) {
                 navigation.navigate('Escala');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Escala</Text>
+              <Text style={styles.dropdownText}>Escalas</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => {
@@ -48,8 +54,9 @@ export default function Escala({ navigation }) {
                 navigation.navigate('Oracoes');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Orações</Text>
+              <Text style={styles.dropdownText}>Orações</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.dropdownItem}
               onPress={() => {
@@ -57,81 +64,307 @@ export default function Escala({ navigation }) {
                 navigation.navigate('Perfil');
               }}
             >
-              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>Perfil</Text>
+              <Text style={styles.dropdownText}>Perfil</Text>
             </TouchableOpacity>
+
           </View>
         )}
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <Text style={styles.sectionTitle}>Escala de Serviço - Próximas Missas</Text>
+        {/* TÍTULO */}
+        <Text style={styles.titulo}>Escalas</Text>
 
-          <View style={styles.eventCard}>
-            <Text style={styles.eventTitle}>19/03 - Quinta-feira - 19h</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Ofertório: </Text>Matheus e Camila</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Sino: </Text>Matheus</Text>
+        {/* ABAS */}
+        <View style={styles.tabs}>
+          <TouchableOpacity style={styles.tabActive}>
+            <Text style={styles.tabTextActive}>Próximas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.tab}>
+            <Text style={styles.tabText}>Todas</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* LISTA */}
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+
+          {/* CARD 1 */}
+          <View style={styles.card}>
+
+            <View style={styles.dataBox}>
+              <Text style={styles.dataDiaSemana}>DOM</Text>
+              <Text style={styles.dataNumero}>26</Text>
+              <Text style={styles.dataMes}>MAI</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.horario}>
+                18h00 • Matriz São José
+              </Text>
+
+              <Text style={styles.info}>
+                Cruz: Matheus
+              </Text>
+
+              <Text style={styles.info}>
+                Vela 1: João
+              </Text>
+
+              <Text style={styles.info}>
+                Vela 2: Lucas
+              </Text>
+
+              <Text style={styles.info}>
+                Turíbulo: Gabriel
+              </Text>
+            </View>
+
           </View>
 
-          <View style={styles.eventCard}>
-            <Text style={[styles.eventTitle, styles.eventTitleBold]}>21/03 - Sábado - 19h</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Cruz:</Text> Pedro</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Velas:</Text> Ana e Maria</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Servir:</Text> Pedro, Ana e Maria</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Sino:</Text> Pedro</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Missal:</Text> Marina</Text>
+          {/* CARD 2 */}
+          <View style={styles.card}>
+
+            <View style={styles.dataBox}>
+              <Text style={styles.dataDiaSemana}>DOM</Text>
+              <Text style={styles.dataNumero}>02</Text>
+              <Text style={styles.dataMes}>JUN</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.horario}>
+                18h00 • Matriz São José
+              </Text>
+
+              <Text style={styles.info}>
+                Cruz: Lucas
+              </Text>
+
+              <Text style={styles.info}>
+                Vela 1: Pedro
+              </Text>
+
+              <Text style={styles.info}>
+                Vela 2: Miguel
+              </Text>
+
+              <Text style={styles.info}>
+                Turíbulo: Matheus
+              </Text>
+            </View>
+
           </View>
 
-          <View style={styles.eventCard}>
-            <Text style={[styles.eventTitle, styles.eventTitleBold]}>22/03 - Domingo - 08h</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Turíbulo:</Text> Matheus</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Naveta:</Text> Camila</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Cruz:</Text> Pedro</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Velas:</Text> Ana e Maria</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Servir:</Text> Pedro, Ana e Maria</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Sino:</Text> Pedro</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Missal:</Text> Marina</Text>
-            <Text style={[styles.eventTitle, styles.eventTitleBold]}>19h</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Cruz:</Text> Pedro</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Velas:</Text> Ana e Maria</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Servir:</Text> Pedro, Ana e Maria</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Sino:</Text> Pedro</Text>
-            <Text style={styles.eventText}><Text style={styles.eventLabel}>Missal:</Text> Marina</Text>
+          {/* CARD 3 */}
+          <View style={styles.card}>
+
+            <View style={styles.dataBox}>
+              <Text style={styles.dataDiaSemana}>DOM</Text>
+              <Text style={styles.dataNumero}>24</Text>
+              <Text style={styles.dataMes}>MAI</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.horario}>
+                08hs - Matriz Nossa Senhora de Nazaré.
+              </Text>
+
+              <Text style={styles.info}>
+                Turíbulo: João
+              </Text>
+
+              <Text style={styles.info}>
+                Naveta: Enzo
+              </Text>
+
+              <Text style={styles.info}>
+                Cruz: Lucas
+              </Text>
+
+              <Text style={styles.info}>
+                Velas: Gabriel e Pedro
+              </Text>
+
+              <Text style={styles.info}>
+                Servir: Lucas, Gabriel e Pedro
+              </Text>
+
+              <Text style={styles.info}>
+                Misal: Matheus
+              </Text>
+
+
+            </View>
+
           </View>
+
         </ScrollView>
+
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 20, position: 'relative' },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#000', marginBottom: 12, textAlign: 'center' },
-  eventCard: { backgroundColor: '#f2f2f2', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#ccc' },
-  eventLabel: { fontSize: 14, fontWeight: 'bold', color: '#333' },
-  menuButton: { position: 'absolute', top: 12, left: 12, padding: 8, zIndex: 20 },
-  menuIcon: { color: '#000', fontSize: 26, fontWeight: 'bold' },
+
+  safe: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+
+  container: {
+    flex: 1,
+    paddingTop: 40,
+    paddingHorizontal: 16,
+  },
+
+  menuButton: {
+    position: 'absolute',
+    top: 40,
+    left: 16,
+    zIndex: 20,
+  },
+
+  menuIcon: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+
   dropdownMenu: {
     position: 'absolute',
-    top: 52,
-    left: 12,
+    top: 78,
+    left: 16,
     backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    borderRadius: 10,
+    elevation: 6,
     zIndex: 10,
-    minWidth: 160,
+    width: 180,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
-  dropdownItem: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  dropdownText: { color: '#000', fontSize: 18, fontWeight: 'normal' },
-  dropdownTextLarge: { fontSize: 20, fontWeight: 'normal' },
-  logoutText: { color: '#fff', fontWeight: 'bold' },
-  eventTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 6, color: '#333' },
-  eventText: { fontSize: 14, color: '#333', marginBottom: 2 },
-  eventTitleBold: { fontWeight: 'bold' },
-  content: { flex: 1, marginTop: 20 },
+
+  dropdownItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+
+  dropdownText: {
+    fontSize: 18,
+    color: '#111',
+  },
+
+  titulo: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#1d2951',
+    marginBottom: 25,
+  },
+
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+
+  tabActive: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#d6a100',
+    paddingBottom: 8,
+    width: 120,
+    alignItems: 'center',
+  },
+
+  tab: {
+    paddingBottom: 8,
+    width: 120,
+    alignItems: 'center',
+  },
+
+  tabTextActive: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+
+  tabText: {
+    fontSize: 17,
+    color: '#777',
+  },
+
+  content: {
+    flex: 1,
+  },
+
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 14,
+    marginBottom: 18,
+    flexDirection: 'row',
+
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 6,
+
+    elevation: 3,
+  },
+
+  dataBox: {
+    width: 75,
+    height: 110,
+    backgroundColor: '#0d2a63',
+    borderRadius: 18,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    marginRight: 16,
+  },
+
+  dataDiaSemana: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
+  dataNumero: {
+    color: '#fff',
+    fontSize: 36,
+    fontWeight: 'bold',
+    marginVertical: 2,
+  },
+
+  dataMes: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
+  cardInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+
+  horario: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#444',
+    marginBottom: 10,
+  },
+
+  info: {
+    fontSize: 15,
+    color: '#555',
+    marginBottom: 4,
+  },
+
 });
