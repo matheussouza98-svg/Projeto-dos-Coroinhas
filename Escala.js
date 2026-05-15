@@ -5,11 +5,14 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView,
+ ScrollView,
 } from 'react-native';
 
 export default function Escala({ navigation }) {
   const [menuVisible, setMenuVisible] = useState(false);
+
+  // ABA ATIVA
+  const [abaAtiva, setAbaAtiva] = useState('proximas');
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -75,19 +78,54 @@ export default function Escala({ navigation }) {
 
         {/* ABAS */}
         <View style={styles.tabs}>
-          <TouchableOpacity style={styles.tabActive}>
-            <Text style={styles.tabTextActive}>Próximas</Text>
+
+          {/* SEMANA */}
+          <TouchableOpacity
+            style={
+              abaAtiva === 'proximas'
+                ? styles.tabActive
+                : styles.tab
+            }
+            onPress={() => setAbaAtiva('proximas')}
+          >
+            <Text
+              style={
+                abaAtiva === 'proximas'
+                  ? styles.tabTextActive
+                  : styles.tabText
+              }
+            >
+              Semana
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.tab}>
-            <Text style={styles.tabText}>Todas</Text>
+          {/* TODAS */}
+          <TouchableOpacity
+            style={
+              abaAtiva === 'todas'
+                ? styles.tabActive
+                : styles.tab
+            }
+            onPress={() => setAbaAtiva('todas')}
+          >
+            <Text
+              style={
+                abaAtiva === 'todas'
+                  ? styles.tabTextActive
+                  : styles.tabText
+              }
+            >
+              Todas
+            </Text>
           </TouchableOpacity>
+
         </View>
 
         {/* LISTA */}
         <ScrollView
           style={styles.content}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={abaAtiva === 'todas'}
+          persistentScrollbar={true}
         >
 
           {/* CARD 1 */}
@@ -99,11 +137,12 @@ export default function Escala({ navigation }) {
               <Text style={styles.dataMes}>MAI</Text>
             </View>
 
- <View style={styles.cardInfo}>
+            <View style={styles.cardInfo}>
               <Text style={styles.horario}>
                 08hs - Matriz Nossa Senhora de Nazaré.
               </Text>
-             <Text style={styles.info}>
+
+              <Text style={styles.info}>
                 Turíbulo: João
               </Text>
 
@@ -174,12 +213,110 @@ export default function Escala({ navigation }) {
                 Servir: Gabriel e Pedro
               </Text>
 
-               <Text style={styles.info}>
+              <Text style={styles.info}>
                 Sino: Gabriel
               </Text>
             </View>
 
           </View>
+
+          {/* DUPLICADAS SOMENTE NA ABA TODAS */}
+          {abaAtiva === 'todas' && (
+            <>
+
+              {/* CARD DUPLICADO 1 */}
+              <View style={styles.card}>
+
+                <View style={styles.dataBox}>
+                  <Text style={styles.dataDiaSemana}>DOM</Text>
+                  <Text style={styles.dataNumero}>17</Text>
+                  <Text style={styles.dataMes}>MAI</Text>
+                </View>
+
+                <View style={styles.cardInfo}>
+                  <Text style={styles.horario}>
+                    08hs - Matriz Nossa Senhora de Nazaré.
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Turíbulo: Ray
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Naveta: Ana Livia
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Cruz: Pedro
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Velas: Gabriel e Lucas
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Servir: Pedro, Gabriel e Lucas
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Misal: Matheus
+                  </Text>
+                </View>
+
+              </View>
+
+              {/* CARD DUPLICADO 2 */}
+              <View style={styles.card}>
+
+                <View style={styles.dataBox}>
+                  <Text style={styles.dataDiaSemana}>QUI</Text>
+                  <Text style={styles.dataNumero}>21</Text>
+                  <Text style={styles.dataMes}>MAI</Text>
+                </View>
+
+                <View style={styles.cardInfo}>
+                  <Text style={styles.horario}>
+                    19hs • Matriz Nossa Senhora de Nazaré.
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Servir: Matheus e Samuel
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Sino: Matheus
+                  </Text>
+                </View>
+
+              </View>
+
+              {/* CARD DUPLICADO 3 */}
+              <View style={styles.card}>
+
+                <View style={styles.dataBox}>
+                  <Text style={styles.dataDiaSemana}>SEX</Text>
+                  <Text style={styles.dataNumero}>22</Text>
+                  <Text style={styles.dataMes}>MAI</Text>
+                </View>
+
+                <View style={styles.cardInfo}>
+                  <Text style={styles.horario}>
+                    08hs - Matriz Nossa Senhora de Nazaré.
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Servir: Lucas e João
+                  </Text>
+
+                  <Text style={styles.info}>
+                    Sino: Lucas
+                  </Text>
+                </View>
+
+              </View>
+
+            </>
+          )}
 
         </ScrollView>
 
@@ -196,42 +333,42 @@ const styles = StyleSheet.create({
   },
 
   container: {
-  flex: 1,
-  paddingTop: 40,
-  paddingHorizontal: 20,
-  position: 'relative',
-},
+    flex: 1,
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    position: 'relative',
+  },
 
   menuButton: {
-  position: 'absolute',
-  top: 12,
-  left: 12,
-  padding: 8,
-  zIndex: 20,
-},
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    padding: 8,
+    zIndex: 20,
+  },
 
   menuIcon: {
-  color: '#000',
-  fontSize: 26,
-  fontWeight: 'bold',
-},
+    color: '#000',
+    fontSize: 26,
+    fontWeight: 'bold',
+  },
 
   dropdownMenu: {
-  position: 'absolute',
-  top: 52,
-  left: 12,
-  backgroundColor: '#fff',
-  borderColor: '#ccc',
-  borderWidth: 1,
-  borderRadius: 6,
-  elevation: 5,
-  shadowColor: '#000',
-  shadowOpacity: 0.2,
-  shadowOffset: { width: 0, height: 2 },
-  shadowRadius: 4,
-  zIndex: 10,
-  minWidth: 160,
-},
+    position: 'absolute',
+    top: 52,
+    left: 12,
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    zIndex: 10,
+    minWidth: 160,
+  },
 
   dropdownItem: {
     paddingVertical: 14,
@@ -286,6 +423,7 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
+    paddingRight: 4,
   },
 
   card: {
