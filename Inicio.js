@@ -115,11 +115,11 @@ export default function Inicio({ navigation }) {
               <View style={styles.infoBox}>
 
                 <Text style={styles.infoDay}>
-                  Domingo - 18hs
+                  Domingo - 08hs
                 </Text>
 
                 <Text style={styles.infoLocal}>
-                  Igreja Matriz de Nossa Senhora de Nazaré.
+                  Igreja Matriz Nossa Senhora de Nazaré.
                 </Text>
 
                 {/* 🟡 BOTÃO */}
@@ -175,11 +175,11 @@ export default function Inicio({ navigation }) {
                   </Text>
 
                   <Text style={styles.noticeCardText}>
-                    Sábado, 25/05 às 15H00
+                    Sábado, 23/05 às 15hs
                   </Text>
 
                   <Text style={styles.noticeCardText}>
-                    Salão Paroquial
+                    Salão Paroquial.
                   </Text>
                 </View>
 
@@ -203,15 +203,15 @@ export default function Inicio({ navigation }) {
 
                 <View>
                   <Text style={styles.noticeCardTitle}>
-                    Escalas de Coroinhas
+                    Escala da Semana
                   </Text>
 
                   <Text style={styles.noticeCardText}>
-                    Dias 08 e 09 de Junho
+                    Dias 24, 28 e 29 de Maio
                   </Text>
 
                   <Text style={styles.noticeCardText}>
-                    Inscrições abertas!
+                    Escala semanal disponível!
                   </Text>
                 </View>
 
@@ -246,7 +246,7 @@ export default function Inicio({ navigation }) {
               </Text>
 
               <Text style={styles.confirmSubtitle}>
-                Missa • Domingo às 18h00
+                Missa - Domingo às 08hs
               </Text>
 
               <View style={styles.confirmButtons}>

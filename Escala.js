@@ -5,7 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
- ScrollView,
+  ScrollView,
 } from 'react-native';
 
 export default function Escala({ navigation }) {
@@ -124,7 +124,7 @@ export default function Escala({ navigation }) {
         {/* LISTA */}
         <ScrollView
           style={styles.content}
-          showsVerticalScrollIndicator={abaAtiva === 'todas'}
+          showsVerticalScrollIndicator={true}
           persistentScrollbar={true}
         >
 
@@ -139,7 +139,7 @@ export default function Escala({ navigation }) {
 
             <View style={styles.cardInfo}>
               <Text style={styles.horario}>
-                08hs - Matriz Nossa Senhora de Nazaré.
+                08hs - Igreja Matriz Nossa Senhora de Nazaré.
               </Text>
 
               <Text style={styles.info}>
@@ -163,7 +163,45 @@ export default function Escala({ navigation }) {
               </Text>
 
               <Text style={styles.info}>
+                Sino: Lucas
+              </Text>
+
+              <Text style={styles.info}>
                 Misal: Matheus
+              </Text>
+
+            </View>
+
+          </View>
+
+          {/* CARD 1.1 */}
+          <View style={styles.card}>
+
+            <View style={styles.dataBox}>
+              <Text style={styles.dataDiaSemana}>DOM</Text>
+              <Text style={styles.dataNumero}>24</Text>
+              <Text style={styles.dataMes}>MAI</Text>
+            </View>
+
+            <View style={styles.cardInfo}>
+              <Text style={styles.horario}>
+                19hs - Igreja Matriz Nossa Senhora de Nazaré.
+              </Text>
+
+              <Text style={styles.info}>
+                Cruz: Lucas
+              </Text>
+
+              <Text style={styles.info}>
+                Velas: Gabriel e Pedro
+              </Text>
+
+              <Text style={styles.info}>
+                Servir: Lucas, Gabriel e Pedro
+              </Text>
+
+              <Text style={styles.info}>
+                Sino: Lucas
               </Text>
 
             </View>
@@ -181,7 +219,7 @@ export default function Escala({ navigation }) {
 
             <View style={styles.cardInfo}>
               <Text style={styles.horario}>
-                19hs • Matriz Nossa Senhora de Nazaré.
+                19hs - Igreja Matriz Nossa Senhora de Nazaré.
               </Text>
 
               <Text style={styles.info}>
@@ -206,7 +244,7 @@ export default function Escala({ navigation }) {
 
             <View style={styles.cardInfo}>
               <Text style={styles.horario}>
-                08hs - Matriz Nossa Senhora de Nazaré.
+                19hs - Igreja Matriz Nossa Senhora de Nazaré.
               </Text>
 
               <Text style={styles.info}>
@@ -235,7 +273,7 @@ export default function Escala({ navigation }) {
 
                 <View style={styles.cardInfo}>
                   <Text style={styles.horario}>
-                    08hs - Matriz Nossa Senhora de Nazaré.
+                    08hs - Igreja Matriz Nossa Senhora de Nazaré.
                   </Text>
 
                   <Text style={styles.info}>
@@ -259,57 +297,11 @@ export default function Escala({ navigation }) {
                   </Text>
 
                   <Text style={styles.info}>
+                    Sino: Pedro
+                  </Text>
+
+                  <Text style={styles.info}>
                     Misal: Matheus
-                  </Text>
-                </View>
-
-              </View>
-
-              {/* CARD DUPLICADO 2 */}
-              <View style={styles.card}>
-
-                <View style={styles.dataBox}>
-                  <Text style={styles.dataDiaSemana}>QUI</Text>
-                  <Text style={styles.dataNumero}>21</Text>
-                  <Text style={styles.dataMes}>MAI</Text>
-                </View>
-
-                <View style={styles.cardInfo}>
-                  <Text style={styles.horario}>
-                    19hs • Matriz Nossa Senhora de Nazaré.
-                  </Text>
-
-                  <Text style={styles.info}>
-                    Servir: Matheus e Samuel
-                  </Text>
-
-                  <Text style={styles.info}>
-                    Sino: Matheus
-                  </Text>
-                </View>
-
-              </View>
-
-              {/* CARD DUPLICADO 3 */}
-              <View style={styles.card}>
-
-                <View style={styles.dataBox}>
-                  <Text style={styles.dataDiaSemana}>SEX</Text>
-                  <Text style={styles.dataNumero}>22</Text>
-                  <Text style={styles.dataMes}>MAI</Text>
-                </View>
-
-                <View style={styles.cardInfo}>
-                  <Text style={styles.horario}>
-                    08hs - Matriz Nossa Senhora de Nazaré.
-                  </Text>
-
-                  <Text style={styles.info}>
-                    Servir: Lucas e João
-                  </Text>
-
-                  <Text style={styles.info}>
-                    Sino: Lucas
                   </Text>
                 </View>
 
