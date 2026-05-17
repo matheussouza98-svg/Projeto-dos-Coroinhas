@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
 
   inputErro: {
-    borderColor: "#001830",
+    borderColor: "#C62828",
   },
 
   erroTexto: {

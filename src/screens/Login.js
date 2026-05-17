@@ -18,12 +18,17 @@ const { width } = Dimensions.get('window');
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [statusType, setStatusType] = useState('');
 
   const handleLogin = () => {
     if (email === 'teste@teste' && senha === '123456') {
-      navigation.navigate('AppTabs');
+      setStatusType('success');
+      setStatusMessage('Logado com sucesso!');
+      setTimeout(() => navigation.navigate('AppTabs'), 900);
     } else {
-      alert('Seus dados estão incorretos');
+      setStatusType('error');
+      setStatusMessage('E-mail ou senha incorretos.');
     }
   };
 
@@ -40,7 +45,7 @@ export default function Login({ navigation }) {
           <View style={styles.container}>
 
             <Image
-              source={require('./assets/background1.png')}
+              source={require('../../assets/background1.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -50,21 +55,41 @@ export default function Login({ navigation }) {
 
             <Text style={styles.label}>E-mail:</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, statusType === 'error' ? styles.inputError : null]}
               placeholder="Digite seu e-mail"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={text => {
+                setEmail(text);
+                if (statusMessage) {
+                  setStatusMessage('');
+                  setStatusType('');
+                }
+              }}
               keyboardType="email-address"
             />
 
             <Text style={styles.label}>Senha:</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, statusType === 'error' ? styles.inputError : null]}
               placeholder="Digite sua senha"
               secureTextEntry
               value={senha}
-              onChangeText={setSenha}
+              onChangeText={text => {
+                setSenha(text);
+                if (statusMessage) {
+                  setStatusMessage('');
+                  setStatusType('');
+                }
+              }}
             />
+            {statusType === 'success' ? (
+              <View style={[styles.statusBox, styles.successBox]}>
+                <Text style={[styles.statusIcon, styles.successIcon]}>✓</Text>
+                <Text style={[styles.statusText, styles.successText]}>{statusMessage}</Text>
+              </View>
+            ) : statusType === 'error' ? (
+              <Text style={styles.errorText}>{statusMessage}</Text>
+            ) : null}
 
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
               <Text style={styles.buttonText}>Entrar</Text>
@@ -140,6 +165,56 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     marginBottom: 12,
     fontSize: 15,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+
+  inputError: {
+    borderColor: '#d32f2f',
+    backgroundColor: '#FCECEC',
+  },
+
+  statusBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    padding: 10,
+    borderRadius: 12,
+  },
+
+  successBox: {
+    backgroundColor: '#E8F6EA',
+    borderColor: '#4CAF50',
+    borderWidth: 1,
+  },
+
+  errorBox: {
+    backgroundColor: '#FDECEA',
+    borderColor: '#d32f2f',
+    borderWidth: 1,
+  },
+
+  statusIcon: {
+    marginRight: 8,
+    fontSize: 16,
+  },
+
+  statusText: {
+    fontSize: 13,
+  },
+
+  successIcon: {
+    color: '#4CAF50',
+  },
+
+  successText: {
+    color: '#2E7D32',
+    fontSize: 13,
+  },
+
+  errorText: {
+    color: '#d32f2f',
+    fontSize: 13,
   },
 
   button: {

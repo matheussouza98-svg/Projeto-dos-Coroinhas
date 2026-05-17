@@ -63,7 +63,6 @@ export default function Inicio({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
 
-          {/* MENU */}
           <TouchableOpacity
             style={styles.menuButton}
             onPress={() => setMenuVisible(v => !v)}
@@ -71,7 +70,6 @@ export default function Inicio({ navigation }) {
             <Text style={styles.menuIcon}>≡</Text>
           </TouchableOpacity>
 
-          {/* TEXTOS */}
           <View style={styles.headerText}>
 
             <Text style={styles.titleHeader}>
