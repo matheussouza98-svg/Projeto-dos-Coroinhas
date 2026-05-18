@@ -16,7 +16,7 @@ export default function Perfil({ navigation }) {
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.menuButton}
-          onPress={() => setMenuVisible(v => !v)}
+          onPress={() => setMenuVisible((v) => !v)}
         >
           <Text style={styles.menuIcon}>≡</Text>
         </TouchableOpacity>
@@ -61,7 +61,7 @@ export default function Perfil({ navigation }) {
             </TouchableOpacity>
           </View>
         )}
-        
+
         <Text style={styles.title}>Perfil</Text>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -107,13 +107,19 @@ export default function Perfil({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 20, position: 'relative' },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 20, textAlign: 'center' },
-  content: { flex: 1, marginTop: 10 },
-  card: { backgroundColor: '#f7f7f7', borderRadius: 12, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#ddd' },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#222', marginBottom: 8 },
-  cardText: { fontSize: 15, color: '#444', lineHeight: 22 },
-  menuButton: { position: 'absolute', top: 12, left: 12, padding: 8, zIndex: 20 },
+  container: {
+    flex: 1,
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    position: 'relative',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    padding: 8,
+    zIndex: 30,
+  },
   menuIcon: { color: '#000', fontSize: 26, fontWeight: 'bold' },
   dropdownMenu: {
     position: 'absolute',
@@ -128,11 +134,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    zIndex: 10,
+    zIndex: 25,
     minWidth: 160,
   },
-  dropdownItem: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
   dropdownText: { color: '#000', fontSize: 18, fontWeight: 'normal' },
   dropdownTextLarge: { fontSize: 20, fontWeight: 'normal' },
+  title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 20, textAlign: 'center' },
+  content: { flex: 1, marginTop: 10 },
+  card: { backgroundColor: '#f7f7f7', borderRadius: 12, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: '#ddd' },
+  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#222', marginBottom: 8 },
+  cardText: { fontSize: 15, color: '#444', lineHeight: 22 },
   logoutText: { color: '#fff', fontWeight: 'bold' },
 });

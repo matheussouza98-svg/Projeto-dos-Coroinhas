@@ -4,8 +4,8 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  TouchableOpacity,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 
 export default function Oracoes({ navigation }) {
@@ -16,7 +16,7 @@ export default function Oracoes({ navigation }) {
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.menuButton}
-          onPress={() => setMenuVisible(v => !v)}
+          onPress={() => setMenuVisible((v) => !v)}
         >
           <Text style={styles.menuIcon}>≡</Text>
         </TouchableOpacity>
@@ -116,21 +116,19 @@ export default function Oracoes({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
-  container: { flex: 1, paddingTop: 40, paddingHorizontal: 20, position: 'relative' },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 20 },
-  content: { flex: 1, marginTop: 20 },
-  message: {
-    fontSize: 14,
-    color: '#333',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 20,
+  container: {
+    flex: 1,
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    position: 'relative',
   },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#000', marginBottom: 15, textAlign: 'center' },
-  contentCard: { backgroundColor: '#f2f2f2', borderRadius: 10, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#ccc' },
-  contentTitle: { fontSize: 16, fontWeight: 'bold', color: '#C62828', marginBottom: 8 },
-  contentText: { fontSize: 14, color: '#333', lineHeight: 20 },
-  menuButton: { position: 'absolute', top: 12, left: 12, padding: 8, zIndex: 20 },
+  menuButton: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    padding: 8,
+    zIndex: 30,
+  },
   menuIcon: { color: '#000', fontSize: 26, fontWeight: 'bold' },
   dropdownMenu: {
     position: 'absolute',
@@ -145,11 +143,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    zIndex: 10,
+    zIndex: 25,
     minWidth: 160,
   },
-  dropdownItem: { paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
   dropdownText: { color: '#000', fontSize: 18, fontWeight: 'normal' },
   dropdownTextLarge: { fontSize: 20, fontWeight: 'normal' },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 20 },
+  content: { flex: 1, marginTop: 20 },
+  message: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#000', marginBottom: 15, textAlign: 'center' },
+  contentCard: { backgroundColor: '#f2f2f2', borderRadius: 10, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#ccc' },
+  contentTitle: { fontSize: 16, fontWeight: 'bold', color: '#C62828', marginBottom: 8 },
+  contentText: { fontSize: 14, color: '#333', lineHeight: 20 },
   logoutText: { color: '#fff', fontWeight: 'bold' },
 });

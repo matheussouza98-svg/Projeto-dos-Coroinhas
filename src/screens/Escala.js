@@ -465,20 +465,65 @@ const allSchedule = Object.keys(scheduleData)
 
       <View style={styles.container}>
 
-        {/* MENU */}
-
         <TouchableOpacity
           style={styles.menuButton}
-          onPress={() => setMenuVisible(!menuVisible)}
+          onPress={() => {
+            setCalendarOpen(false);
+            setShowCalendar(false);
+            setMenuVisible((v) => !v);
+          }}
         >
-
-          <Text style={styles.menuIcon}>
-            ≡
-          </Text>
-
+          <Text style={styles.menuIcon}>≡</Text>
         </TouchableOpacity>
 
-        {/* CALENDÁRIO */}
+        {menuVisible && (
+          <View style={styles.dropdownMenu}>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Inicio');
+              }}
+            >
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>
+                Início
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Escala');
+              }}
+            >
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>
+                Escala
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Oracoes');
+              }}
+            >
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>
+                Orações
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dropdownItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Perfil');
+              }}
+            >
+              <Text style={[styles.dropdownText, styles.dropdownTextLarge]}>
+                Perfil
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={styles.calendarWrapper}>
 
@@ -487,6 +532,7 @@ const allSchedule = Object.keys(scheduleData)
             onPress={() => {
               setCalendarOpen(!calendarOpen);
               setShowCalendar(false);
+              setMenuVisible(false);
             }}
           >
 
@@ -650,13 +696,9 @@ const allSchedule = Object.keys(scheduleData)
 
         </View>
 
-        {/* TÍTULO */}
-
         <Text style={styles.titulo}>
           Escalas
         </Text>
-
-        {/* ABAS */}
 
         <View style={styles.tabs}>
 
@@ -710,15 +752,11 @@ const allSchedule = Object.keys(scheduleData)
 
         </View>
 
-        {/* LISTA */}
-
         <ScrollView
-  style={styles.content}
-  showsVerticalScrollIndicator={true}
-  persistentScrollbar={true}
-  nestedScrollEnabled={true}
-  contentContainerStyle={{ paddingBottom: 120 }}
->
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 120 }}
+        >
 
           {selectedDate ? (
 
@@ -857,8 +895,9 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingTop: 90,
+    paddingTop: 40,
     paddingHorizontal: 20,
+    position: 'relative',
   },
 
   menuButton: {
@@ -866,13 +905,48 @@ const styles = StyleSheet.create({
     top: 12,
     left: 12,
     padding: 8,
-    zIndex: 20,
+    zIndex: 30,
   },
 
   menuIcon: {
     color: '#000',
     fontSize: 26,
     fontWeight: 'bold',
+  },
+
+  dropdownMenu: {
+    position: 'absolute',
+    top: 52,
+    left: 12,
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    zIndex: 25,
+    minWidth: 160,
+  },
+
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+
+  dropdownText: {
+    color: '#000',
+    fontSize: 18,
+    fontWeight: 'normal',
+  },
+
+  dropdownTextLarge: {
+    fontSize: 20,
+    fontWeight: 'normal',
   },
 
   titulo: {
@@ -916,13 +990,15 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
+    marginTop: 10,
   },
 
   calendarWrapper: {
     position: 'absolute',
-    top: 80,
+    top:36,
     right: 12,
-    zIndex: 15,
+    zIndex: 10,
+    elevation: 6,
   },
 
   calendarButton: {

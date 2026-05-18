@@ -65,10 +65,51 @@ export default function Inicio({ navigation }) {
 
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => setMenuVisible(v => !v)}
+            onPress={() => setMenuVisible((v) => !v)}
           >
             <Text style={styles.menuIcon}>≡</Text>
           </TouchableOpacity>
+
+          {menuVisible && (
+            <View style={styles.dropdownMenu}>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('Inicio');
+                }}
+              >
+                <Text style={styles.dropdownText}>Início</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('Escala');
+                }}
+              >
+                <Text style={styles.dropdownText}>Escala</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('Oracoes');
+                }}
+              >
+                <Text style={styles.dropdownText}>Orações</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('Perfil');
+                }}
+              >
+                <Text style={styles.dropdownText}>Perfil</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <View style={styles.headerText}>
 
@@ -272,61 +313,6 @@ export default function Inicio({ navigation }) {
             </View>
           )}
 
-          {/* MENU DROPDOWN */}
-          {menuVisible && (
-            <View style={styles.dropdownMenu}>
-
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Inicio');
-                }}
-              >
-                <Text style={styles.dropdownText}>
-                  Início
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Escala');
-                }}
-              >
-                <Text style={styles.dropdownText}>
-                  Escala
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Oracoes');
-                }}
-              >
-                <Text style={styles.dropdownText}>
-                  Orações
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Perfil');
-                }}
-              >
-                <Text style={styles.dropdownText}>
-                  Perfil
-                </Text>
-              </TouchableOpacity>
-
-            </View>
-          )}
-
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -352,13 +338,43 @@ const styles = StyleSheet.create({
     top: 12,
     left: 12,
     padding: 8,
-    zIndex: 20,
+    zIndex: 30,
   },
 
   menuIcon: {
     color: '#000',
     fontSize: 26,
     fontWeight: 'bold',
+  },
+
+  dropdownMenu: {
+    position: 'absolute',
+    top: 52,
+    left: 12,
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    zIndex: 25,
+    minWidth: 160,
+  },
+
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+
+  dropdownText: {
+    color: '#000',
+    fontSize: 18,
+    fontWeight: 'normal',
   },
 
   headerText: {
@@ -634,33 +650,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
-  dropdownMenu: {
-    position: 'absolute',
-    top: 52,
-    left: 12,
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    zIndex: 10,
-    minWidth: 160,
-  },
-
-  dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-
-  dropdownText: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: 'normal',
-  },
 });
