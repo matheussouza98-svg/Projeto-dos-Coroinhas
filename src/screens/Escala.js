@@ -995,7 +995,7 @@ const styles = StyleSheet.create({
 
   calendarWrapper: {
     position: 'absolute',
-    top:36,
+    top: 38,
     right: 12,
     zIndex: 10,
     elevation: 6,
