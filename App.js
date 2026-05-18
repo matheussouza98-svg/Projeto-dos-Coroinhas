@@ -17,7 +17,7 @@ import CodigoVerificacao from './src/screens/CodigoVerificacao';
 import NovaSenha from './src/screens/NovaSenha';
 
 import AppTabs from './AppTabs';
-
+import ConfirmacaoPresenca from './src/screens/ConfirmacaoPresenca';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -60,6 +60,11 @@ export default function App() {
         <Stack.Screen
           name="NovaSenha"
           component={NovaSenha}
+        />
+
+        <Stack.Screen
+          name="ConfirmacaoPresenca"
+          component={ConfirmacaoPresenca}
         />
 
         <Stack.Screen

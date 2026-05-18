@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  TextInput,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -90,6 +91,8 @@ export default function Escala({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(null);
 
   const [currentMonth, setCurrentMonth] = useState(null);
+
+  const [attendanceStatus, setAttendanceStatus] = useState({});
 
   /* =========================================
      CRIAR ESCALAS
@@ -443,6 +446,18 @@ const allSchedule = Object.keys(scheduleData)
   const selectedSchedule = selectedDate
     ? scheduleData[selectedDate] || []
     : [];
+
+  const openConfirmation = (activity) => {
+    navigation.getParent()?.navigate('ConfirmacaoPresenca', {
+      activity,
+      onSubmit: (result) => {
+        setAttendanceStatus((prev) => ({
+          ...prev,
+          [activity.dateKey]: result,
+        }));
+      },
+    });
+  };
 
   const meses = [
     'jan',
@@ -802,6 +817,34 @@ const allSchedule = Object.keys(scheduleData)
 
                     ))}
 
+                    {attendanceStatus[activity.dateKey] ? (
+                      <View style={styles.statusBox}>
+                        <Text
+                          style={[
+                            styles.statusText,
+                            attendanceStatus[activity.dateKey].status === 'confirmed' && styles.statusConfirmed,
+                            attendanceStatus[activity.dateKey].status === 'unavailable' && styles.statusUnavailable,
+                          ]}
+                        >
+                          {attendanceStatus[activity.dateKey].status === 'confirmed'
+                            ? 'Confirmado'
+                            : 'Indisponível'}
+                        </Text>
+                        <Text style={styles.statusDetail}>
+                          {attendanceStatus[activity.dateKey].when}
+                        </Text>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.confirmPresenceButton}
+                        onPress={() => openConfirmation(activity)}
+                      >
+                        <Text style={styles.confirmPresenceText}>
+                          Confirmar presença
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
                   </View>
 
                 </View>
@@ -870,6 +913,34 @@ const allSchedule = Object.keys(scheduleData)
                     </Text>
 
                   ))}
+
+                  {attendanceStatus[activity.dateKey] ? (
+                    <View style={styles.statusBox}>
+                      <Text
+                        style={[
+                          styles.statusText,
+                          attendanceStatus[activity.dateKey].status === 'confirmed' && styles.statusConfirmed,
+                          attendanceStatus[activity.dateKey].status === 'unavailable' && styles.statusUnavailable,
+                        ]}
+                      >
+                        {attendanceStatus[activity.dateKey].status === 'confirmed'
+                          ? 'Confirmado'
+                          : 'Indisponível'}
+                      </Text>
+                      <Text style={styles.statusDetail}>
+                        {attendanceStatus[activity.dateKey].when}
+                      </Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.confirmPresenceButton}
+                      onPress={() => openConfirmation(activity)}
+                    >
+                      <Text style={styles.confirmPresenceText}>
+                        Confirmação de presença
+                      </Text>
+                    </TouchableOpacity>
+                  )}
 
                 </View>
 
@@ -1141,4 +1212,148 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 
+  confirmPresenceButton: {
+    marginTop: 10,
+    backgroundColor: '#d6a100',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+
+  confirmPresenceText: {
+    fontSize: 14,
+    color: '#001830',
+    fontWeight: 'bold',
+  },
+
+  statusBox: {
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: '#f4f4f4',
+  },
+
+  statusText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#444',
+  },
+
+  statusConfirmed: {
+    color: '#196f03',
+  },
+
+  statusUnavailable: {
+    color: '#b30000',
+  },
+
+  statusDetail: {
+    fontSize: 13,
+    color: '#666',
+  },
+
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 50,
+  },
+
+  confirmationPanel: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 22,
+    elevation: 10,
+  },
+
+  confirmationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+
+  confirmationTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#001830',
+  },
+
+  confirmationInfo: {
+    marginBottom: 18,
+  },
+
+  confirmationCardDate: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#001830',
+    marginBottom: 6,
+  },
+
+  confirmationCardTime: {
+    fontSize: 16,
+    color: '#444',
+    marginBottom: 12,
+  },
+
+  confirmationItem: {
+    fontSize: 15,
+    color: '#555',
+    marginBottom: 6,
+  },
+
+  actionButton: {
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  confirmButton: {
+    backgroundColor: '#196f03',
+  },
+
+  cancelButton: {
+    backgroundColor: '#b30000',
+  },
+
+  sendButton: {
+    backgroundColor: '#001830',
+  },
+
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  justificationLabel: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 10,
+  },
+
+  justificationInput: {
+    minHeight: 100,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 14,
+    padding: 12,
+    textAlignVertical: 'top',
+    marginBottom: 14,
+    color: '#111',
+  },
 });
