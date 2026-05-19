@@ -92,6 +92,10 @@ export default function Escala({ navigation }) {
 
   const [currentMonth, setCurrentMonth] = useState(null);
 
+  const [currentYear, setCurrentYear] = useState(2026);
+
+  const [showYearSelector, setShowYearSelector] = useState(false);
+
   const [attendanceStatus, setAttendanceStatus] = useState({});
 
   /* =========================================
@@ -411,37 +415,37 @@ export default function Escala({ navigation }) {
 
   const weekSchedule = [
 
-  ...(scheduleData['2026-05-24'] || []).map(item => ({
-    ...item,
-    dateKey: '2026-05-24',
-  })),
+    ...(scheduleData['2026-05-24'] || []).map(item => ({
+      ...item,
+      dateKey: '2026-05-24',
+    })),
 
-  ...(scheduleData['2026-05-28'] || []).map(item => ({
-    ...item,
-    dateKey: '2026-05-28',
-  })),
+    ...(scheduleData['2026-05-28'] || []).map(item => ({
+      ...item,
+      dateKey: '2026-05-28',
+    })),
 
-  ...(scheduleData['2026-05-29'] || []).map(item => ({
-    ...item,
-    dateKey: '2026-05-29',
-  })),
-];
+    ...(scheduleData['2026-05-29'] || []).map(item => ({
+      ...item,
+      dateKey: '2026-05-29',
+    })),
+  ];
 
   /* =========================================
    TODAS ESCALAS
 ========================================= */
 
-const allSchedule = Object.keys(scheduleData)
+  const allSchedule = Object.keys(scheduleData)
 
-  // DEZEMBRO → JANEIRO
-  .sort((a, b) => new Date(b) - new Date(a))
+    // DEZEMBRO → JANEIRO
+    .sort((a, b) => new Date(b) - new Date(a))
 
-  .flatMap(key =>
-    (scheduleData[key] || []).map(activity => ({
-      ...activity,
-      dateKey: key,
-    }))
-  );
+    .flatMap(key =>
+      (scheduleData[key] || []).map(activity => ({
+        ...activity,
+        dateKey: key,
+      }))
+    );
 
   const selectedSchedule = selectedDate
     ? scheduleData[selectedDate] || []
@@ -581,7 +585,7 @@ const allSchedule = Object.keys(scheduleData)
                           styles.monthCircle,
 
                           currentMonth === index + 1 &&
-                            styles.monthCircleActive,
+                          styles.monthCircleActive,
                         ]}
 
                         onPress={() => {
@@ -598,7 +602,7 @@ const allSchedule = Object.keys(scheduleData)
                             styles.monthCircleText,
 
                             currentMonth === index + 1 &&
-                              styles.monthCircleTextActive,
+                            styles.monthCircleTextActive,
                           ]}
                         >
                           {mes}
@@ -631,11 +635,18 @@ const allSchedule = Object.keys(scheduleData)
 
                   <Calendar
 
-                    current={`2026-${String(currentMonth).padStart(2, '0')}-01`}
+                    current={`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`}
 
                     minDate={'2026-01-01'}
 
                     maxDate={'2026-12-31'}
+
+                    onMonthChange={(month) => {
+
+                      setCurrentMonth(month.month);
+
+                      setCurrentYear(month.year);
+                    }}
 
                     onDayPress={(day) => {
 
@@ -666,11 +677,11 @@ const allSchedule = Object.keys(scheduleData)
 
                         selectedDate
                           ? {
-                              [selectedDate]: {
-                                selected: true,
-                                selectedColor: '#001830',
-                              },
-                            }
+                            [selectedDate]: {
+                              selected: true,
+                              selectedColor: '#001830',
+                            },
+                          }
                           : {}
                       )
                     }
@@ -769,7 +780,7 @@ const allSchedule = Object.keys(scheduleData)
 
         <ScrollView
           style={styles.content}
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           contentContainerStyle={{ paddingBottom: 120 }}
         >
 
@@ -1062,25 +1073,20 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     marginTop: 10,
+    maxHeight: '75%',
   },
 
   calendarWrapper: {
     position: 'absolute',
-    top: 38,
+    top: 44,
     right: 12,
     zIndex: 10,
     elevation: 6,
   },
 
   calendarButton: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    elevation: 4,
-
-    borderWidth: 2,
-    borderColor: '#001830',
+    paddingHorizontal: 4,
+    paddingVertical: 4,
   },
 
   calendarPopup: {
