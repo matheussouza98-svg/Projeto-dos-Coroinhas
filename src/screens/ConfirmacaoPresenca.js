@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
     View,
@@ -11,18 +11,17 @@ import {
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
-import { salvarPresencaSessao } from '../utils/presencasSessao';
 
 export default function ConfirmacaoPresenca({
     route,
     navigation,
 }) {
-    const { activity, onSubmit } = route.params || {};
+    const { activity, onSubmit, presencaSalva } = route.params || {};
 
     const [step, setStep] = useState('choice');
     const [justification, setJustification] = useState('');
-    const [submitted, setSubmitted] = useState(false);
-    const [result, setResult] = useState(null);
+    const [submitted, setSubmitted] = useState(Boolean(presencaSalva));
+    const [result, setResult] = useState(presencaSalva ?? null);
 
     const nowFormatted = () =>
         new Date().toLocaleString('pt-BR', {
@@ -55,19 +54,13 @@ export default function ConfirmacaoPresenca({
 
         setResult(response);
         setSubmitted(true);
-        salvarPresencaSessao(response);
 
         if (typeof onSubmit === 'function') {
             onSubmit(response);
         }
+
+        setTimeout(() => voltarParaEscala(), 1800);
     };
-
-    useEffect(() => {
-        if (!submitted || !result) return;
-
-        const timer = setTimeout(() => voltarParaEscala(), 1800);
-        return () => clearTimeout(timer);
-    }, [submitted, result]);
 
     const handleUnavailable = () => {
         setStep('justify');
@@ -87,11 +80,12 @@ export default function ConfirmacaoPresenca({
 
         setResult(response);
         setSubmitted(true);
-        salvarPresencaSessao(response);
 
         if (typeof onSubmit === 'function') {
             onSubmit(response);
         }
+
+        setTimeout(() => voltarParaEscala(), 1800);
     };
 
     // SETA ←
@@ -578,9 +572,15 @@ const styles = StyleSheet.create({
     },
 
     resultBox: {
-        borderRadius: 12,
-        padding: 10,
-        marginTop: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+        borderRadius: 20,
+        paddingVertical: 8,
+        paddingHorizontal: 22,
+        minWidth: 240,
+        alignSelf: 'flex-start',
+        borderWidth: 2,
     },
 
     resultRow: {
@@ -599,24 +599,22 @@ const styles = StyleSheet.create({
     },
 
     resultMessage: {
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: 'bold',
     },
 
     resultWhen: {
-        fontSize: 13,
+        fontSize: 14,
         marginTop: 2,
     },
 
     resultBoxSuccess: {
         backgroundColor: '#E8F6EA',
-        borderWidth: 1,
         borderColor: '#4CAF50',
     },
 
     resultBoxError: {
         backgroundColor: '#FDECEA',
-        borderWidth: 1,
         borderColor: '#d32f2f',
     },
 

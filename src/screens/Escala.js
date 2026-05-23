@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { getPresencasSessao, salvarPresencaSessao } from '../utils/presencasSessao';
 import {
   View,
   Text,
@@ -122,6 +121,31 @@ function montarISO(ano, mesIndex, dia, minDate, maxDate) {
   return iso;
 }
 
+function mudarMesCalendario(ano, mesIndex, dia, delta, minDate, maxDate) {
+  let novoMes = mesIndex + delta;
+  let novoAno = ano;
+  if (novoMes < 0) {
+    novoMes = 11;
+    novoAno -= 1;
+  } else if (novoMes > 11) {
+    novoMes = 0;
+    novoAno += 1;
+  }
+  return montarISO(novoAno, novoMes, dia, minDate, maxDate);
+}
+
+function podeIrMesAnterior(ano, mesIndex, minDate) {
+  const minAno = Number(minDate.slice(0, 4));
+  const minMes = Number(minDate.slice(5, 7));
+  return ano > minAno || (ano === minAno && mesIndex + 1 > minMes);
+}
+
+function podeIrMesProximo(ano, mesIndex, maxDate) {
+  const maxAno = Number(maxDate.slice(0, 4));
+  const maxMes = Number(maxDate.slice(5, 7));
+  return ano < maxAno || (ano === maxAno && mesIndex + 1 < maxMes);
+}
+
 function montarMarkedDates(isoSelecionada, datasComEscala = []) {
   const marcadas = {};
 
@@ -240,6 +264,38 @@ function DropdownCampo({ label, valor, aberto, onToggle, opcoes, onSelecionar, v
 }
 
 const chaveAtividade = (activity) => `${activity.dateKey}-${activity.time}`;
+
+const CHAVE_PRESENCAS_SESSAO = '__presencasCoroinhasSessao__';
+
+function obterPresencasArmazenamento() {
+  if (typeof window !== 'undefined') {
+    if (!window[CHAVE_PRESENCAS_SESSAO]) {
+      window[CHAVE_PRESENCAS_SESSAO] = {};
+    }
+    return window[CHAVE_PRESENCAS_SESSAO];
+  }
+
+  if (!global[CHAVE_PRESENCAS_SESSAO]) {
+    global[CHAVE_PRESENCAS_SESSAO] = {};
+  }
+  return global[CHAVE_PRESENCAS_SESSAO];
+}
+
+function getPresencasSessao() {
+  return { ...obterPresencasArmazenamento() };
+}
+
+function salvarPresencaSessao(presenca) {
+  if (presenca?.activityKey) {
+    obterPresencasArmazenamento()[presenca.activityKey] = presenca;
+  }
+  return getPresencasSessao();
+}
+
+function getPresencaAtividade(activityKey) {
+  if (!activityKey) return null;
+  return obterPresencasArmazenamento()[activityKey] ?? null;
+}
 
 export default function Escala({ navigation, route }) {
   const insets = useSafeAreaInsets();
@@ -663,13 +719,22 @@ export default function Escala({ navigation, route }) {
     ? scheduleData[selectedDate] || []
     : [];
 
+  const renderSemEscala = (estiloBox) => (
+    <View style={estiloBox}>
+      <Ionicons name="calendar-clear-outline" size={55} color="#999" />
+      <Text style={styles.emptyTitle}>Nenhuma escala cadastrada</Text>
+    </View>
+  );
+
   const openConfirmation = (activity) => {
+    const key = chaveAtividade(activity);
     navigation.getParent()?.navigate('ConfirmacaoPresenca', {
       activity,
+      presencaSalva: getPresencaAtividade(key) ?? attendanceStatus[key] ?? null,
       onSubmit: (result) => {
         registrarPresenca({
           ...result,
-          activityKey: result.activityKey || chaveAtividade(activity),
+          activityKey: result.activityKey || key,
         });
       },
     });
@@ -677,7 +742,7 @@ export default function Escala({ navigation, route }) {
 
   const renderPresencaAction = (activity) => {
     const key = chaveAtividade(activity);
-    const status = attendanceStatus[key];
+    const status = getPresencaAtividade(key) ?? attendanceStatus[key];
 
     if (status) {
       const confirmado = status.status === 'confirmed';
@@ -945,21 +1010,7 @@ export default function Escala({ navigation, route }) {
               ))
 
             ) : (
-
-              <View style={styles.emptyBox}>
-
-                <Ionicons
-                  name="calendar-clear-outline"
-                  size={55}
-                  color="#999"
-                />
-
-                <Text style={styles.emptyTitle}>
-                  Nenhuma escala disponível
-                </Text>
-
-              </View>
-
+              renderSemEscala(styles.emptyBox)
             )
 
           ) : (
@@ -1044,7 +1095,7 @@ export default function Escala({ navigation, route }) {
               <Text style={styles.dateTitulo}>Selecionar data</Text>
             </View>
             <View style={styles.datePreviewBox}>
-              <Text style={styles.datePreviewLabel}>Data escolhida</Text>
+              <Text style={styles.datePreviewLabel}>Data Selecionada</Text>
               <Text style={styles.datePreviewValor}>
                 {formatarPreviewData(dataSelecionadaISO)}
               </Text>
@@ -1085,7 +1136,47 @@ export default function Escala({ navigation, route }) {
               />
             </View>
             <View style={styles.dateCalendarCard}>
-              <Text style={styles.dateCalendarTitulo}>{MESES[mesIndex]}</Text>
+              <View style={styles.dateCalendarMesHeader}>
+                <TouchableOpacity
+                  style={styles.dateCalendarSetaBtn}
+                  onPress={() => {
+                    setDataSelecionadaISO(
+                      mudarMesCalendario(ano, mesIndex, dia, -1, DATA_MIN, DATA_MAX)
+                    );
+                    fecharDropdowns();
+                  }}
+                  disabled={!podeIrMesAnterior(ano, mesIndex, DATA_MIN)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="chevron-back"
+                    size={26}
+                    color={
+                      podeIrMesAnterior(ano, mesIndex, DATA_MIN) ? '#001830' : '#C5C5C5'
+                    }
+                  />
+                </TouchableOpacity>
+                <Text style={styles.dateCalendarTitulo}>{MESES[mesIndex]}</Text>
+                <TouchableOpacity
+                  style={styles.dateCalendarSetaBtn}
+                  onPress={() => {
+                    setDataSelecionadaISO(
+                      mudarMesCalendario(ano, mesIndex, dia, 1, DATA_MIN, DATA_MAX)
+                    );
+                    fecharDropdowns();
+                  }}
+                  disabled={!podeIrMesProximo(ano, mesIndex, DATA_MAX)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="chevron-forward"
+                    size={26}
+                    color={
+                      podeIrMesProximo(ano, mesIndex, DATA_MAX) ? '#001830' : '#C5C5C5'
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
               <Calendar
                 key={mesCalendarioISO}
                 current={mesCalendarioISO}
@@ -1112,6 +1203,9 @@ export default function Escala({ navigation, route }) {
                 style={styles.dateCalendar}
               />
             </View>
+            <Text style={styles.dateLegendaTexto}>
+              O ponto na cor dourada nos dias indica escalas.
+            </Text>
             <View style={styles.dateAcoes}>
               <TouchableOpacity
                 style={styles.dateBtnOutline}
@@ -1413,12 +1507,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
   },
+  dateCalendarMesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  dateCalendarSetaBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+  },
   dateCalendarTitulo: {
+    flex: 1,
     fontSize: 17,
     fontWeight: '700',
     color: '#001830',
     textAlign: 'center',
-    marginBottom: 8,
     textTransform: 'capitalize',
   },
   dateCalendar: {
@@ -1458,6 +1566,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: COR_PONTO_ESCALA,
     marginTop: 2,
+  },
+  dateLegendaTexto: {
+    fontSize: 13,
+    color: '#4c5d7a',
+    lineHeight: 18,
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
   dateAcoes: {
     flexDirection: 'row',
@@ -1501,9 +1616,10 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     marginTop: 14,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    textAlign: 'center',
   },
 
   card: {
@@ -1565,7 +1681,7 @@ const styles = StyleSheet.create({
   confirmPresenceButton: {
     marginTop: 10,
     backgroundColor: '#d6a100',
-    borderRadius: 12,
+    borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 14,
     alignItems: 'center',
@@ -1581,23 +1697,23 @@ const styles = StyleSheet.create({
   presencaStatusBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 14,
-    padding: 10,
-    borderRadius: 12,
+    marginTop: 10,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 22,
+    minWidth: 240,
     alignSelf: 'flex-start',
-    maxWidth: '100%',
+    borderWidth: 2,
   },
 
   presencaSuccessBox: {
     backgroundColor: '#E8F6EA',
     borderColor: '#4CAF50',
-    borderWidth: 1,
   },
 
   presencaUnavailableBox: {
     backgroundColor: '#FDECEA',
     borderColor: '#d32f2f',
-    borderWidth: 1,
   },
 
   presencaStatusIcon: {
@@ -1619,12 +1735,12 @@ const styles = StyleSheet.create({
   },
 
   presencaStatusText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 'bold',
   },
 
   presencaStatusWhen: {
-    fontSize: 13,
+    fontSize: 14,
     marginTop: 2,
   },
 

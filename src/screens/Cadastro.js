@@ -126,6 +126,31 @@ function montarISO(ano, mesIndex, dia, minDate, maxDate) {
   return iso;
 }
 
+function mudarMesCalendario(ano, mesIndex, dia, delta, minDate, maxDate) {
+  let novoMes = mesIndex + delta;
+  let novoAno = ano;
+  if (novoMes < 0) {
+    novoMes = 11;
+    novoAno -= 1;
+  } else if (novoMes > 11) {
+    novoMes = 0;
+    novoAno += 1;
+  }
+  return montarISO(novoAno, novoMes, dia, minDate, maxDate);
+}
+
+function podeIrMesAnterior(ano, mesIndex, minDate) {
+  const minAno = Number(minDate.slice(0, 4));
+  const minMes = Number(minDate.slice(5, 7));
+  return ano > minAno || (ano === minAno && mesIndex + 1 > minMes);
+}
+
+function podeIrMesProximo(ano, mesIndex, maxDate) {
+  const maxAno = Number(maxDate.slice(0, 4));
+  const maxMes = Number(maxDate.slice(5, 7));
+  return ano < maxAno || (ano === maxAno && mesIndex + 1 < maxMes);
+}
+
 function montarMarkedDates(isoSelecionada) {
   const iso = isoSelecionada || dataHojeISO();
   return {
@@ -514,7 +539,7 @@ export default function Cadastro({ navigation }) {
               <Text style={styles.dateTitulo}>Selecionar data</Text>
             </View>
             <View style={styles.datePreviewBox}>
-              <Text style={styles.datePreviewLabel}>Data escolhida</Text>
+              <Text style={styles.datePreviewLabel}>Data Selecionada</Text>
               <Text style={styles.datePreviewValor}>
                 {formatarPreviewData(dataSelecionadaISO)}
               </Text>
@@ -559,7 +584,49 @@ export default function Cadastro({ navigation }) {
               />
             </View>
             <View style={styles.dateCalendarCard}>
-              <Text style={styles.dateCalendarTitulo}>{MESES[mesIndex]}</Text>
+              <View style={styles.dateCalendarMesHeader}>
+                <TouchableOpacity
+                  style={styles.dateCalendarSetaBtn}
+                  onPress={() => {
+                    setDataSelecionadaISO(
+                      mudarMesCalendario(ano, mesIndex, dia, -1, DATA_MIN, dataMaxCalendario)
+                    );
+                    fecharDropdowns();
+                  }}
+                  disabled={!podeIrMesAnterior(ano, mesIndex, DATA_MIN)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="chevron-back"
+                    size={26}
+                    color={
+                      podeIrMesAnterior(ano, mesIndex, DATA_MIN) ? '#001830' : '#C5C5C5'
+                    }
+                  />
+                </TouchableOpacity>
+                <Text style={styles.dateCalendarTitulo}>{MESES[mesIndex]}</Text>
+                <TouchableOpacity
+                  style={styles.dateCalendarSetaBtn}
+                  onPress={() => {
+                    setDataSelecionadaISO(
+                      mudarMesCalendario(ano, mesIndex, dia, 1, DATA_MIN, dataMaxCalendario)
+                    );
+                    fecharDropdowns();
+                  }}
+                  disabled={!podeIrMesProximo(ano, mesIndex, dataMaxCalendario)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="chevron-forward"
+                    size={26}
+                    color={
+                      podeIrMesProximo(ano, mesIndex, dataMaxCalendario)
+                        ? '#001830'
+                        : '#C5C5C5'
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
               <Calendar
                 key={mesCalendarioISO}
                 current={mesCalendarioISO}
@@ -918,12 +985,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
   },
+  dateCalendarMesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  dateCalendarSetaBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+  },
   dateCalendarTitulo: {
+    flex: 1,
     fontSize: 17,
     fontWeight: '700',
     color: '#001830',
     textAlign: 'center',
-    marginBottom: 8,
     textTransform: 'capitalize',
   },
   dateCalendar: {

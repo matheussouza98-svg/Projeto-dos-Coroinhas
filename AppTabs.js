@@ -49,7 +49,7 @@ export default function AppTabs() {
           if (route.name === 'Escala') {
             return (
               <Ionicons
-                name="calendar-outline"
+                name="calendar-clear-outline"
                 size={size}
                 color={color}
               />
@@ -82,21 +82,25 @@ export default function AppTabs() {
       <Tab.Screen
         name="Inicio"
         component={Inicio}
+        options={{ tabBarLabel: 'Início' }}
       />
 
       <Tab.Screen
         name="Escala"
         component={Escala}
+        options={{ tabBarLabel: 'Escala' }}
       />
 
       <Tab.Screen
         name="Oracoes"
         component={Oracoes}
+        options={{ tabBarLabel: 'Orações' }}
       />
 
       <Tab.Screen
         name="Perfil"
         component={Perfil}
+        options={{ tabBarLabel: 'Perfil' }}
       />
 
     </Tab.Navigator>
