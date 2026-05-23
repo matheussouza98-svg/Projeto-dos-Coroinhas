@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { getPresencasSessao, salvarPresencaSessao } from '../utils/presencasSessao';
 import {
   View,
   Text,
@@ -12,64 +11,238 @@ import {
   TextInput,
   Modal,
   Pressable,
-  Platform,
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 const ANO_MIN = 2000;
-const ANO_MAX = 2021;
-const DATA_MIN_PICKER = new Date(ANO_MIN, 0, 1);
-const DATA_MAX_PICKER = new Date(ANO_MAX, 11, 31);
+const ANO_MAX = 2126;
+const DATA_MIN = `${ANO_MIN}-01-01`;
+const DATA_MAX = `${ANO_MAX}-12-31`;
 
-const MESES_NOMES = [
+const MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ];
 
-function isoFromDate(date) {
+LocaleConfig.locales['pt-br'] = {
+  monthNames: [...MESES],
+  monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+  today: 'Hoje',
+};
+LocaleConfig.defaultLocale = 'pt-br';
+
+const COR_PONTO_ESCALA = '#d6a100';
+
+const temaCalendario = {
+  backgroundColor: '#ffffff',
+  calendarBackground: '#ffffff',
+  textSectionTitleColor: '#6B7280',
+  selectedDayBackgroundColor: '#001830',
+  selectedDayTextColor: '#ffffff',
+  dotColor: COR_PONTO_ESCALA,
+  selectedDotColor: COR_PONTO_ESCALA,
+  dotStyle: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    marginTop: 1,
+    backgroundColor: COR_PONTO_ESCALA,
+  },
+  todayTextColor: '#1976D2',
+  todayBackgroundColor: '#E8EEF4',
+  dayTextColor: '#001830',
+  textDisabledColor: '#D1D5DB',
+  arrowColor: '#001830',
+  monthTextColor: '#001830',
+  textDayFontWeight: '500',
+  textMonthFontWeight: '700',
+  textDayHeaderFontWeight: '600',
+  textDayFontSize: 15,
+  textMonthFontSize: 17,
+  textDayHeaderFontSize: 12,
+  'stylesheet.calendar.header': {
+    header: {
+      height: 0,
+      overflow: 'hidden',
+    },
+  },
+  'stylesheet.marking': {
+    dot: {
+      width: 7,
+      height: 7,
+      borderRadius: 4,
+      marginTop: 2,
+      backgroundColor: COR_PONTO_ESCALA,
+    },
+  },
+};
+
+function dataHojeISO() {
+  const agora = new Date();
   return (
-    date.getFullYear() +
+    agora.getFullYear() +
     '-' +
-    String(date.getMonth() + 1).padStart(2, '0') +
+    String(agora.getMonth() + 1).padStart(2, '0') +
     '-' +
-    String(date.getDate()).padStart(2, '0')
+    String(agora.getDate()).padStart(2, '0')
   );
 }
 
-function dateFromISO(iso) {
-  if (!iso) return DATA_MAX_PICKER;
-  const [ano, mes, dia] = iso.split('-').map(Number);
-  const date = new Date(ano, mes - 1, dia);
-  if (date < DATA_MIN_PICKER) return DATA_MIN_PICKER;
-  if (date > DATA_MAX_PICKER) return DATA_MAX_PICKER;
-  return date;
-}
-
-function dataInicialPicker(iso) {
-  if (iso) return dateFromISO(iso);
+function partesDaISO(iso) {
   const hoje = new Date();
-  if (hoje < DATA_MIN_PICKER) return DATA_MIN_PICKER;
-  if (hoje > DATA_MAX_PICKER) return DATA_MAX_PICKER;
-  return hoje;
+  const partes = (iso || '').split('-');
+  const ano = Number(partes[0]) || hoje.getFullYear();
+  const mes = Number(partes[1]) || hoje.getMonth() + 1;
+  const dia = Number(partes[2]) || hoje.getDate();
+  const mesIndex = Math.max(0, Math.min(11, mes - 1));
+  return { ano, mesIndex, dia };
 }
 
-function formatarDataSelecionada(iso) {
-  if (!iso) return 'Nenhuma data selecionada';
-  const [ano, mes, dia] = iso.split('-');
-  const mesNome = MESES_NOMES[Number(mes) - 1] || mes;
-  return `${dia} de ${mesNome} de ${ano}`;
+function formatarPreviewData(iso) {
+  const { ano, mesIndex, dia } = partesDaISO(iso);
+  return `${String(dia).padStart(2, '0')} de ${MESES[mesIndex]} de ${ano}`;
+}
+
+function montarISO(ano, mesIndex, dia, minDate, maxDate) {
+  const anoNum = Number(ano);
+  const mesIdx = Number(mesIndex);
+  const diaNum = Number(dia);
+  const maxDia = new Date(anoNum, mesIdx + 1, 0).getDate();
+  const diaFinal = Math.min(diaNum, maxDia);
+  const mes = String(mesIdx + 1).padStart(2, '0');
+  const diaStr = String(diaFinal).padStart(2, '0');
+  const iso = `${anoNum}-${mes}-${diaStr}`;
+  if (iso > maxDate) return maxDate;
+  if (iso < minDate) return minDate;
+  return iso;
+}
+
+function montarMarkedDates(isoSelecionada, datasComEscala = []) {
+  const marcadas = {};
+
+  datasComEscala.forEach((dataISO) => {
+    marcadas[dataISO] = {
+      marked: true,
+      dotColor: COR_PONTO_ESCALA,
+    };
+  });
+
+  const iso = isoSelecionada || dataHojeISO();
+  const temEscalaNoDia = datasComEscala.includes(iso);
+  marcadas[iso] = {
+    ...(marcadas[iso] || {}),
+    selected: true,
+    selectedColor: '#001830',
+    selectedTextColor: '#ffffff',
+    ...(temEscalaNoDia
+      ? { marked: true, dotColor: COR_PONTO_ESCALA }
+      : {}),
+  };
+
+  return marcadas;
+}
+
+function DiaCalendario({ date, state, marking, onPress }) {
+  const temEscala = Boolean(marking?.marked);
+  const selecionado = Boolean(marking?.selected || state === 'selected');
+  const inativo = state === 'disabled' || state === 'inactive';
+
+  return (
+    <TouchableOpacity
+      style={styles.diaCalendarioCelula}
+      onPress={() => onPress?.(date)}
+      disabled={state === 'disabled'}
+      activeOpacity={0.7}
+    >
+      <View
+        style={[
+          styles.diaCalendarioFundo,
+          selecionado && styles.diaCalendarioFundoSelecionado,
+        ]}
+      >
+        <Text
+          style={[
+            styles.diaCalendarioNumero,
+            selecionado && styles.diaCalendarioNumeroSelecionado,
+            inativo && styles.diaCalendarioNumeroInativo,
+          ]}
+        >
+          {date.day}
+        </Text>
+      </View>
+      {temEscala ? <View style={styles.diaCalendarioPonto} /> : null}
+    </TouchableOpacity>
+  );
+}
+
+function anosNoIntervalo(minDate, maxDate) {
+  const anoMin = Number(minDate.slice(0, 4));
+  const anoMax = Number(maxDate.slice(0, 4));
+  return Array.from({ length: anoMax - anoMin + 1 }, (_, i) => anoMax - i);
+}
+
+function DropdownCampo({ label, valor, aberto, onToggle, opcoes, onSelecionar, valorAtivo, estilos }) {
+  return (
+    <View style={estilos.dropdownWrap}>
+      <Text style={estilos.dropdownLabel}>{label}</Text>
+      <TouchableOpacity
+        style={[estilos.dropdownField, aberto && estilos.dropdownFieldAberto]}
+        onPress={onToggle}
+        activeOpacity={0.8}
+      >
+        <Text style={estilos.dropdownValor} numberOfLines={1}>
+          {valor}
+        </Text>
+        <Ionicons
+          name={aberto ? 'chevron-up' : 'chevron-down'}
+          size={18}
+          color="#6B7280"
+        />
+      </TouchableOpacity>
+      {aberto ? (
+        <View style={estilos.dropdownLista}>
+          <ScrollView
+            style={estilos.dropdownScroll}
+            contentContainerStyle={estilos.dropdownScrollContent}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator
+            persistentScrollbar
+            indicatorStyle="black"
+            keyboardShouldPersistTaps="handled"
+          >
+            {opcoes.map((opcao) => {
+              const ativo = opcao.valor === valorAtivo;
+              return (
+                <TouchableOpacity
+                  key={String(opcao.valor)}
+                  style={[estilos.dropdownItem, ativo && estilos.dropdownItemAtivo]}
+                  onPress={() => onSelecionar(opcao.valor)}
+                  activeOpacity={0.75}
+                >
+                  <Text
+                    style={[estilos.dropdownItemText, ativo && estilos.dropdownItemTextAtivo]}
+                  >
+                    {opcao.rotulo}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 const chaveAtividade = (activity) => `${activity.dateKey}-${activity.time}`;
 
-const STORAGE_PRESENCAS = '@coroinhas_presencas';
-
 export default function Escala({ navigation, route }) {
   const insets = useSafeAreaInsets();
-
   const [menuVisible, setMenuVisible] = useState(false);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -77,55 +250,59 @@ export default function Escala({ navigation, route }) {
   const [abaAtiva, setAbaAtiva] = useState('proximas');
 
   const [selectedDate, setSelectedDate] = useState(null);
-
-  const [pickerDate, setPickerDate] = useState(DATA_MAX_PICKER);
-
-  const [attendanceStatus, setAttendanceStatus] = useState({});
-
-  const atualizarPresenca = useCallback((updater) => {
-    setAttendanceStatus((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      AsyncStorage.setItem(STORAGE_PRESENCAS, JSON.stringify(next)).catch(() => {});
-      return next;
-    });
-  }, []);
+  const [dataSelecionadaISO, setDataSelecionadaISO] = useState('');
+  const [dropdownAberto, setDropdownAberto] = useState(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_PRESENCAS)
-      .then((raw) => {
-        if (!raw) return;
-        const salvo = JSON.parse(raw);
-        if (salvo && typeof salvo === 'object') {
-          setAttendanceStatus(salvo);
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (!calendarOpen) {
+      setDropdownAberto(null);
+      return;
+    }
+    let iso = selectedDate || dataHojeISO();
+    if (iso > DATA_MAX) iso = DATA_MAX;
+    if (iso < DATA_MIN) iso = DATA_MIN;
+    setDataSelecionadaISO(iso);
+  }, [calendarOpen, selectedDate]);
+
+  const { ano, mesIndex, dia } = partesDaISO(dataSelecionadaISO);
+  const mesCalendarioISO = dataSelecionadaISO || dataHojeISO();
+  const anos = useMemo(() => anosNoIntervalo(DATA_MIN, DATA_MAX), []);
+  const opcoesMes = MESES.map((nome, index) => ({ valor: index, rotulo: nome }));
+  const opcoesAno = anos.map((a) => ({ valor: a, rotulo: String(a) }));
+
+  function fecharDropdowns() {
+    setDropdownAberto(null);
+  }
+
+  function confirmarData() {
+    setSelectedDate(dataSelecionadaISO);
+    setCalendarOpen(false);
+    setAbaAtiva('proximas');
+  }
+
+  const [attendanceStatus, setAttendanceStatus] = useState(() => getPresencasSessao());
+
+  function registrarPresenca(presenca) {
+    if (!presenca?.activityKey) return;
+    setAttendanceStatus(salvarPresencaSessao(presenca));
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      setAttendanceStatus(getPresencasSessao());
+    }, [])
+  );
 
   useFocusEffect(
     useCallback(() => {
       const aba = route.params?.abaAtiva;
-      const presenca = route.params?.presencaAtualizada;
 
       if (aba === 'proximas' || aba === 'todas') {
         setAbaAtiva(aba);
         setSelectedDate(null);
+        navigation.setParams({ abaAtiva: undefined });
       }
-
-      if (presenca?.activityKey) {
-        atualizarPresenca((prev) => ({
-          ...prev,
-          [presenca.activityKey]: presenca,
-        }));
-      }
-
-      if (aba || presenca?.activityKey) {
-        navigation.setParams({
-          abaAtiva: undefined,
-          presencaAtualizada: undefined,
-        });
-      }
-    }, [navigation, route.params?.abaAtiva, route.params?.presencaAtualizada, atualizarPresenca])
+    }, [navigation, route.params?.abaAtiva])
   );
 
   /* =========================================
@@ -439,6 +616,11 @@ export default function Escala({ navigation, route }) {
     ),
   };
 
+  const datasMarcadas = useMemo(
+    () => montarMarkedDates(dataSelecionadaISO, Object.keys(scheduleData)),
+    [dataSelecionadaISO]
+  );
+
   /* =========================================
      ESCALA SEMANA
   ========================================= */
@@ -485,11 +667,10 @@ export default function Escala({ navigation, route }) {
     navigation.getParent()?.navigate('ConfirmacaoPresenca', {
       activity,
       onSubmit: (result) => {
-        const key = result.activityKey || chaveAtividade(activity);
-        atualizarPresenca((prev) => ({
-          ...prev,
-          [key]: result,
-        }));
+        registrarPresenca({
+          ...result,
+          activityKey: result.activityKey || chaveAtividade(activity),
+        });
       },
     });
   };
@@ -563,32 +744,9 @@ export default function Escala({ navigation, route }) {
   };
 
   function abrirCalendario() {
-    setPickerDate(dataInicialPicker(selectedDate));
     setCalendarOpen(true);
     setMenuVisible(false);
   }
-
-  function aoMudarDataPicker(event, date) {
-    if (Platform.OS === 'android' && event.type === 'dismissed') {
-      setCalendarOpen(false);
-      return;
-    }
-    if (date) setPickerDate(date);
-  }
-
-  function confirmarDataPicker() {
-    setSelectedDate(isoFromDate(pickerDate));
-    setCalendarOpen(false);
-    setAbaAtiva('proximas');
-  }
-
-  function limparDataFiltro() {
-    setSelectedDate(null);
-    setCalendarOpen(false);
-  }
-
-  const pickerDisplay =
-    Platform.OS === 'ios' ? 'spinner' : 'spinner';
 
   return (
 
@@ -868,51 +1026,93 @@ export default function Escala({ navigation, route }) {
         visible={calendarOpen}
         onRequestClose={() => setCalendarOpen(false)}
       >
-        <View style={styles.dateModalOverlay}>
+        <View style={styles.dateOverlay}>
           <Pressable
-            style={styles.dateModalBackdrop}
+            style={styles.dateBackdrop}
             onPress={() => setCalendarOpen(false)}
           />
-          <View style={[styles.dateSheet, { paddingBottom: insets.bottom + 16 }]}>
-            <View style={styles.sheetHandle} />
-
-            <View style={styles.dateSheetHeader}>
+          <ScrollView
+            style={[styles.dateSheet, { paddingBottom: insets.bottom + 20 }]}
+            contentContainerStyle={styles.dateSheetContent}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.dateHandle} />
+            <View style={styles.dateHeader}>
               <Ionicons name="calendar" size={22} color="#001830" />
-              <Text style={styles.dateSheetTitle}>Selecionar data</Text>
+              <Text style={styles.dateTitulo}>Selecionar data</Text>
             </View>
-
             <View style={styles.datePreviewBox}>
               <Text style={styles.datePreviewLabel}>Data escolhida</Text>
-              <Text style={styles.datePreviewValue}>
-                {formatarDataSelecionada(isoFromDate(pickerDate))}
+              <Text style={styles.datePreviewValor}>
+                {formatarPreviewData(dataSelecionadaISO)}
               </Text>
-              <Text style={styles.datePreviewRange}>
+              <Text style={styles.datePreviewPeriodo}>
                 Período: {ANO_MIN} a {ANO_MAX}
               </Text>
             </View>
-
-            <View style={styles.pickerWrap}>
-              <DateTimePicker
-                value={pickerDate}
-                mode="date"
-                display={pickerDisplay}
-                onChange={aoMudarDataPicker}
-                minimumDate={DATA_MIN_PICKER}
-                maximumDate={DATA_MAX_PICKER}
-                locale="pt-BR"
-                themeVariant="light"
-                style={styles.datePicker}
+            <View style={styles.dateDropdownRow}>
+              <DropdownCampo
+                label="Mês"
+                valor={MESES[mesIndex]}
+                aberto={dropdownAberto === 'mes'}
+                onToggle={() =>
+                  setDropdownAberto((atual) => (atual === 'mes' ? null : 'mes'))
+                }
+                opcoes={opcoesMes}
+                onSelecionar={(novoMes) => {
+                  setDataSelecionadaISO(montarISO(ano, novoMes, dia, DATA_MIN, DATA_MAX));
+                  fecharDropdowns();
+                }}
+                valorAtivo={mesIndex}
+                estilos={styles}
+              />
+              <DropdownCampo
+                label="Ano"
+                valor={String(ano)}
+                aberto={dropdownAberto === 'ano'}
+                onToggle={() =>
+                  setDropdownAberto((atual) => (atual === 'ano' ? null : 'ano'))
+                }
+                opcoes={opcoesAno}
+                onSelecionar={(novoAno) => {
+                  setDataSelecionadaISO(montarISO(novoAno, mesIndex, dia, DATA_MIN, DATA_MAX));
+                  fecharDropdowns();
+                }}
+                valorAtivo={ano}
+                estilos={styles}
               />
             </View>
-
-            <View style={styles.dateSheetActions}>
-              <TouchableOpacity
-                style={styles.dateBtnOutline}
-                onPress={limparDataFiltro}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.dateBtnOutlineText}>Limpar</Text>
-              </TouchableOpacity>
+            <View style={styles.dateCalendarCard}>
+              <Text style={styles.dateCalendarTitulo}>{MESES[mesIndex]}</Text>
+              <Calendar
+                key={mesCalendarioISO}
+                current={mesCalendarioISO}
+                minDate={DATA_MIN}
+                maxDate={DATA_MAX}
+                onDayPress={(day) => {
+                  setDataSelecionadaISO(day.dateString);
+                  fecharDropdowns();
+                }}
+                onMonthChange={(month) => {
+                  setDataSelecionadaISO(
+                    montarISO(month.year, month.month - 1, dia, DATA_MIN, DATA_MAX)
+                  );
+                }}
+                markedDates={datasMarcadas}
+                dayComponent={DiaCalendario}
+                theme={temaCalendario}
+                enableSwipeMonths
+                hideArrows
+                hideHeader
+                renderHeader={() => null}
+                hideExtraDays={false}
+                firstDay={0}
+                style={styles.dateCalendar}
+              />
+            </View>
+            <View style={styles.dateAcoes}>
               <TouchableOpacity
                 style={styles.dateBtnOutline}
                 onPress={() => setCalendarOpen(false)}
@@ -922,13 +1122,13 @@ export default function Escala({ navigation, route }) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.dateBtnPrimary}
-                onPress={confirmarDataPicker}
+                onPress={confirmarData}
                 activeOpacity={0.85}
               >
                 <Text style={styles.dateBtnPrimaryText}>Confirmar</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
     </SafeAreaView>
@@ -1056,126 +1256,239 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
 
-  dateModalOverlay: {
+  dateOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
   },
-
-  dateModalBackdrop: {
+  dateBackdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 24, 48, 0.45)',
   },
-
   dateSheet: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 10,
-    paddingHorizontal: 20,
+    maxHeight: '92%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 16,
   },
-
-  sheetHandle: {
+  dateSheetContent: {
+    paddingTop: 10,
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  dateHandle: {
     alignSelf: 'center',
     width: 40,
     height: 4,
     borderRadius: 2,
     backgroundColor: '#D1D5DB',
-    marginBottom: 14,
+    marginBottom: 16,
   },
-
-  dateSheetHeader: {
+  dateHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 14,
+    marginBottom: 16,
   },
-
-  dateSheetTitle: {
+  dateTitulo: {
     fontSize: 18,
     fontWeight: '700',
     color: '#001830',
   },
-
   datePreviewBox: {
     backgroundColor: '#F4F7FA',
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginBottom: 8,
+    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
-
   datePreviewLabel: {
     fontSize: 11,
-    fontWeight: '600',
     color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
     marginBottom: 4,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-
-  datePreviewValue: {
-    fontSize: 17,
+  datePreviewValor: {
+    fontSize: 20,
     fontWeight: '700',
     color: '#001830',
   },
-
-  datePreviewRange: {
+  datePreviewPeriodo: {
     fontSize: 12,
     color: '#6B7280',
     marginTop: 6,
   },
-
-  pickerWrap: {
+  dateDropdownRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+    zIndex: 10,
+  },
+  dropdownWrap: {
+    flex: 1,
+    position: 'relative',
+  },
+  dropdownLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 6,
+  },
+  dropdownField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    minHeight: 48,
+  },
+  dropdownFieldAberto: {
+    borderColor: '#001830',
+  },
+  dropdownValor: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#001830',
+    marginRight: 8,
+  },
+  dropdownLista: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    marginTop: 4,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E5E9EF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 20,
+  },
+  dropdownScroll: {
+    maxHeight: 160,
+  },
+  dropdownScrollContent: {
+    paddingRight: 6,
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F2F5',
+  },
+  dropdownItemAtivo: {
+    backgroundColor: '#F4F7FA',
+  },
+  dropdownItemText: {
+    fontSize: 15,
+    color: '#001830',
+    fontWeight: '500',
+  },
+  dropdownItemTextAtivo: {
+    fontWeight: '700',
+    color: '#001830',
+  },
+  dateCalendarCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E5E9EF',
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  dateCalendarTitulo: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#001830',
+    textAlign: 'center',
+    marginBottom: 8,
+    textTransform: 'capitalize',
+  },
+  dateCalendar: {
+    marginBottom: 0,
+  },
+  diaCalendarioCelula: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 4,
-    minHeight: Platform.OS === 'ios' ? 216 : 180,
+    minHeight: 44,
   },
-
-  datePicker: {
-    width: '100%',
-    height: Platform.OS === 'ios' ? 216 : 180,
+  diaCalendarioFundo: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-
-  dateSheetActions: {
+  diaCalendarioFundoSelecionado: {
+    backgroundColor: '#001830',
+  },
+  diaCalendarioNumero: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#001830',
+  },
+  diaCalendarioNumeroSelecionado: {
+    color: '#ffffff',
+    fontWeight: '600',
+  },
+  diaCalendarioNumeroInativo: {
+    color: '#D1D5DB',
+  },
+  diaCalendarioPonto: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: COR_PONTO_ESCALA,
+    marginTop: 2,
+  },
+  dateAcoes: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
+    gap: 12,
   },
-
   dateBtnOutline: {
     flex: 1,
-    height: 46,
-    borderRadius: 23,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1.5,
     borderColor: '#001830',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#fff',
   },
-
   dateBtnOutlineText: {
     color: '#001830',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
   },
-
   dateBtnPrimary: {
     flex: 1,
-    height: 46,
-    borderRadius: 23,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#001830',
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   dateBtnPrimaryText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
   },
 

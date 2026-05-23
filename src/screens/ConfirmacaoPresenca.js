@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
+import { salvarPresencaSessao } from '../utils/presencasSessao';
 
 export default function ConfirmacaoPresenca({
     route,
@@ -37,14 +38,8 @@ export default function ConfirmacaoPresenca({
             ? `${activity.dateKey}-${activity.time}`
             : null;
 
-    const voltarParaEscalaSemana = (presenca) => {
-        navigation.navigate('AppTabs', {
-            screen: 'Escala',
-            params: {
-                abaAtiva: 'proximas',
-                presencaAtualizada: presenca,
-            },
-        });
+    const voltarParaEscala = () => {
+        navigation.goBack();
     };
 
     const handleParticipation = () => {
@@ -60,6 +55,7 @@ export default function ConfirmacaoPresenca({
 
         setResult(response);
         setSubmitted(true);
+        salvarPresencaSessao(response);
 
         if (typeof onSubmit === 'function') {
             onSubmit(response);
@@ -69,7 +65,7 @@ export default function ConfirmacaoPresenca({
     useEffect(() => {
         if (!submitted || !result) return;
 
-        const timer = setTimeout(() => voltarParaEscalaSemana(result), 1800);
+        const timer = setTimeout(() => voltarParaEscala(), 1800);
         return () => clearTimeout(timer);
     }, [submitted, result]);
 
@@ -91,6 +87,7 @@ export default function ConfirmacaoPresenca({
 
         setResult(response);
         setSubmitted(true);
+        salvarPresencaSessao(response);
 
         if (typeof onSubmit === 'function') {
             onSubmit(response);
