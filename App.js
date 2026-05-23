@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -24,6 +25,7 @@ export default function App() {
 
   return (
 
+    <SafeAreaProvider>
     <NavigationContainer>
 
       <Stack.Navigator
@@ -75,6 +77,7 @@ export default function App() {
       </Stack.Navigator>
 
     </NavigationContainer>
+    </SafeAreaProvider>
 
   );
 }
