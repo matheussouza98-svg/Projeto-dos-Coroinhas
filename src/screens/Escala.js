@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
   View,
@@ -8,95 +10,123 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Modal,
+  Pressable,
+  Platform,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  Calendar,
-  LocaleConfig,
-} from 'react-native-calendars';
+const ANO_MIN = 2000;
+const ANO_MAX = 2021;
+const DATA_MIN_PICKER = new Date(ANO_MIN, 0, 1);
+const DATA_MAX_PICKER = new Date(ANO_MAX, 11, 31);
 
-/* =========================================
-   CALENDÁRIO EM PORTUGUÊS
-========================================= */
+const MESES_NOMES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
 
-LocaleConfig.locales['pt-br'] = {
+function isoFromDate(date) {
+  return (
+    date.getFullYear() +
+    '-' +
+    String(date.getMonth() + 1).padStart(2, '0') +
+    '-' +
+    String(date.getDate()).padStart(2, '0')
+  );
+}
 
-  monthNames: [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-  ],
+function dateFromISO(iso) {
+  if (!iso) return DATA_MAX_PICKER;
+  const [ano, mes, dia] = iso.split('-').map(Number);
+  const date = new Date(ano, mes - 1, dia);
+  if (date < DATA_MIN_PICKER) return DATA_MIN_PICKER;
+  if (date > DATA_MAX_PICKER) return DATA_MAX_PICKER;
+  return date;
+}
 
-  monthNamesShort: [
-    'Jan',
-    'Fev',
-    'Mar',
-    'Abr',
-    'Mai',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Set',
-    'Out',
-    'Nov',
-    'Dez',
-  ],
+function dataInicialPicker(iso) {
+  if (iso) return dateFromISO(iso);
+  const hoje = new Date();
+  if (hoje < DATA_MIN_PICKER) return DATA_MIN_PICKER;
+  if (hoje > DATA_MAX_PICKER) return DATA_MAX_PICKER;
+  return hoje;
+}
 
-  dayNames: [
-    'Domingo',
-    'Segunda',
-    'Terça',
-    'Quarta',
-    'Quinta',
-    'Sexta',
-    'Sábado',
-  ],
+function formatarDataSelecionada(iso) {
+  if (!iso) return 'Nenhuma data selecionada';
+  const [ano, mes, dia] = iso.split('-');
+  const mesNome = MESES_NOMES[Number(mes) - 1] || mes;
+  return `${dia} de ${mesNome} de ${ano}`;
+}
 
-  dayNamesShort: [
-    'Dom',
-    'Seg',
-    'Ter',
-    'Qua',
-    'Qui',
-    'Sex',
-    'Sáb',
-  ],
+const chaveAtividade = (activity) => `${activity.dateKey}-${activity.time}`;
 
-  today: 'Hoje',
-};
+const STORAGE_PRESENCAS = '@coroinhas_presencas';
 
-LocaleConfig.defaultLocale = 'pt-br';
-
-export default function Escala({ navigation }) {
+export default function Escala({ navigation, route }) {
+  const insets = useSafeAreaInsets();
 
   const [menuVisible, setMenuVisible] = useState(false);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const [showCalendar, setShowCalendar] = useState(false);
-
   const [abaAtiva, setAbaAtiva] = useState('proximas');
 
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const [currentMonth, setCurrentMonth] = useState(null);
-
-  const [currentYear, setCurrentYear] = useState(2026);
-
-  const [showYearSelector, setShowYearSelector] = useState(false);
+  const [pickerDate, setPickerDate] = useState(DATA_MAX_PICKER);
 
   const [attendanceStatus, setAttendanceStatus] = useState({});
+
+  const atualizarPresenca = useCallback((updater) => {
+    setAttendanceStatus((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      AsyncStorage.setItem(STORAGE_PRESENCAS, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_PRESENCAS)
+      .then((raw) => {
+        if (!raw) return;
+        const salvo = JSON.parse(raw);
+        if (salvo && typeof salvo === 'object') {
+          setAttendanceStatus(salvo);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const aba = route.params?.abaAtiva;
+      const presenca = route.params?.presencaAtualizada;
+
+      if (aba === 'proximas' || aba === 'todas') {
+        setAbaAtiva(aba);
+        setSelectedDate(null);
+      }
+
+      if (presenca?.activityKey) {
+        atualizarPresenca((prev) => ({
+          ...prev,
+          [presenca.activityKey]: presenca,
+        }));
+      }
+
+      if (aba || presenca?.activityKey) {
+        navigation.setParams({
+          abaAtiva: undefined,
+          presencaAtualizada: undefined,
+        });
+      }
+    }, [navigation, route.params?.abaAtiva, route.params?.presencaAtualizada, atualizarPresenca])
+  );
 
   /* =========================================
      CRIAR ESCALAS
@@ -455,28 +485,110 @@ export default function Escala({ navigation }) {
     navigation.getParent()?.navigate('ConfirmacaoPresenca', {
       activity,
       onSubmit: (result) => {
-        setAttendanceStatus((prev) => ({
+        const key = result.activityKey || chaveAtividade(activity);
+        atualizarPresenca((prev) => ({
           ...prev,
-          [activity.dateKey]: result,
+          [key]: result,
         }));
       },
     });
   };
 
-  const meses = [
-    'jan',
-    'fev',
-    'mar',
-    'abr',
-    'mai',
-    'jun',
-    'jul',
-    'ago',
-    'set',
-    'out',
-    'nov',
-    'dez',
-  ];
+  const renderPresencaAction = (activity) => {
+    const key = chaveAtividade(activity);
+    const status = attendanceStatus[key];
+
+    if (status) {
+      const confirmado = status.status === 'confirmed';
+
+      return (
+        <View
+          style={[
+            styles.presencaStatusBox,
+            confirmado
+              ? styles.presencaSuccessBox
+              : styles.presencaUnavailableBox,
+          ]}
+        >
+          <Text
+            style={[
+              styles.presencaStatusIcon,
+              confirmado
+                ? styles.presencaSuccessIcon
+                : styles.presencaUnavailableIcon,
+            ]}
+          >
+            {confirmado ? '✓' : '✕'}
+          </Text>
+
+          <View style={styles.presencaStatusContent}>
+            <Text
+              style={[
+                styles.presencaStatusText,
+                confirmado
+                  ? styles.presencaSuccessText
+                  : styles.presencaUnavailableText,
+              ]}
+            >
+              {confirmado ? 'Vou participar' : 'Não poderei ir'}
+            </Text>
+
+            {status.when ? (
+              <Text
+                style={[
+                  styles.presencaStatusWhen,
+                  confirmado
+                    ? styles.presencaSuccessText
+                    : styles.presencaUnavailableText,
+                ]}
+              >
+                {status.when}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.confirmPresenceButton}
+        onPress={() => openConfirmation(activity)}
+      >
+        <Text style={styles.confirmPresenceText}>
+          Confirmação de presença
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  function abrirCalendario() {
+    setPickerDate(dataInicialPicker(selectedDate));
+    setCalendarOpen(true);
+    setMenuVisible(false);
+  }
+
+  function aoMudarDataPicker(event, date) {
+    if (Platform.OS === 'android' && event.type === 'dismissed') {
+      setCalendarOpen(false);
+      return;
+    }
+    if (date) setPickerDate(date);
+  }
+
+  function confirmarDataPicker() {
+    setSelectedDate(isoFromDate(pickerDate));
+    setCalendarOpen(false);
+    setAbaAtiva('proximas');
+  }
+
+  function limparDataFiltro() {
+    setSelectedDate(null);
+    setCalendarOpen(false);
+  }
+
+  const pickerDisplay =
+    Platform.OS === 'ios' ? 'spinner' : 'spinner';
 
   return (
 
@@ -488,7 +600,6 @@ export default function Escala({ navigation }) {
           style={styles.menuButton}
           onPress={() => {
             setCalendarOpen(false);
-            setShowCalendar(false);
             setMenuVisible((v) => !v);
           }}
         >
@@ -548,11 +659,7 @@ export default function Escala({ navigation }) {
 
           <TouchableOpacity
             style={styles.calendarButton}
-            onPress={() => {
-              setCalendarOpen(!calendarOpen);
-              setShowCalendar(false);
-              setMenuVisible(false);
-            }}
+            onPress={abrirCalendario}
           >
 
             <Ionicons
@@ -562,163 +669,6 @@ export default function Escala({ navigation }) {
             />
 
           </TouchableOpacity>
-
-          {calendarOpen && (
-
-            <View style={styles.calendarPopup}>
-
-              {!showCalendar ? (
-
-                <>
-
-                  <Text style={styles.selectMonthText}>
-                    Selecione o mês
-                  </Text>
-
-                  <View style={styles.monthGrid}>
-
-                    {meses.map((mes, index) => (
-
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.monthCircle,
-
-                          currentMonth === index + 1 &&
-                          styles.monthCircleActive,
-                        ]}
-
-                        onPress={() => {
-
-                          setCurrentMonth(index + 1);
-
-                          setShowCalendar(true);
-
-                        }}
-                      >
-
-                        <Text
-                          style={[
-                            styles.monthCircleText,
-
-                            currentMonth === index + 1 &&
-                            styles.monthCircleTextActive,
-                          ]}
-                        >
-                          {mes}
-                        </Text>
-
-                      </TouchableOpacity>
-
-                    ))}
-
-                  </View>
-
-                </>
-
-              ) : (
-
-                <>
-
-                  <TouchableOpacity
-                    style={styles.backMonthButton}
-                    onPress={() => setShowCalendar(false)}
-                  >
-
-                    <Ionicons
-                      name="arrow-back"
-                      size={22}
-                      color="#001830"
-                    />
-
-                  </TouchableOpacity>
-
-                  <Calendar
-
-                    current={`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`}
-
-                    minDate={'2026-01-01'}
-
-                    maxDate={'2026-12-31'}
-
-                    onMonthChange={(month) => {
-
-                      setCurrentMonth(month.month);
-
-                      setCurrentYear(month.year);
-                    }}
-
-                    onDayPress={(day) => {
-
-                      setSelectedDate(day.dateString);
-
-                      setCalendarOpen(false);
-
-                      setShowCalendar(false);
-
-                      setAbaAtiva('proximas');
-
-                    }}
-
-                    markedDates={
-
-                      Object.keys(scheduleData).reduce(
-
-                        (acc, date) => {
-
-                          acc[date] = {
-                            marked: true,
-                            dotColor: '#d6a100',
-                          };
-
-                          return acc;
-
-                        },
-
-                        selectedDate
-                          ? {
-                            [selectedDate]: {
-                              selected: true,
-                              selectedColor: '#001830',
-                            },
-                          }
-                          : {}
-                      )
-                    }
-
-                    theme={{
-
-                      todayTextColor: '#001830',
-
-                      arrowColor: '#001830',
-
-                      monthTextColor: '#001830',
-
-                      textMonthFontWeight: 'bold',
-
-                      textMonthFontSize: 20,
-
-                      textDayHeaderFontWeight: 'bold',
-
-                      selectedDayBackgroundColor: '#001830',
-
-                      selectedDayTextColor: '#fff',
-
-                      dayTextColor: '#222',
-
-                      textDisabledColor: '#ccc',
-                    }}
-
-                    enableSwipeMonths={true}
-
-                  />
-
-                </>
-
-              )}
-
-            </View>
-          )}
 
         </View>
 
@@ -828,33 +778,7 @@ export default function Escala({ navigation }) {
 
                     ))}
 
-                    {attendanceStatus[activity.dateKey] ? (
-                      <View style={styles.statusBox}>
-                        <Text
-                          style={[
-                            styles.statusText,
-                            attendanceStatus[activity.dateKey].status === 'confirmed' && styles.statusConfirmed,
-                            attendanceStatus[activity.dateKey].status === 'unavailable' && styles.statusUnavailable,
-                          ]}
-                        >
-                          {attendanceStatus[activity.dateKey].status === 'confirmed'
-                            ? 'Confirmado'
-                            : 'Indisponível'}
-                        </Text>
-                        <Text style={styles.statusDetail}>
-                          {attendanceStatus[activity.dateKey].when}
-                        </Text>
-                      </View>
-                    ) : (
-                      <TouchableOpacity
-                        style={styles.confirmPresenceButton}
-                        onPress={() => openConfirmation(activity)}
-                      >
-                        <Text style={styles.confirmPresenceText}>
-                          Confirmar presença
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                    {renderPresencaAction(activity)}
 
                   </View>
 
@@ -925,33 +849,7 @@ export default function Escala({ navigation }) {
 
                   ))}
 
-                  {attendanceStatus[activity.dateKey] ? (
-                    <View style={styles.statusBox}>
-                      <Text
-                        style={[
-                          styles.statusText,
-                          attendanceStatus[activity.dateKey].status === 'confirmed' && styles.statusConfirmed,
-                          attendanceStatus[activity.dateKey].status === 'unavailable' && styles.statusUnavailable,
-                        ]}
-                      >
-                        {attendanceStatus[activity.dateKey].status === 'confirmed'
-                          ? 'Confirmado'
-                          : 'Indisponível'}
-                      </Text>
-                      <Text style={styles.statusDetail}>
-                        {attendanceStatus[activity.dateKey].when}
-                      </Text>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.confirmPresenceButton}
-                      onPress={() => openConfirmation(activity)}
-                    >
-                      <Text style={styles.confirmPresenceText}>
-                        Confirmação de presença
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+                  {renderPresencaAction(activity)}
 
                 </View>
 
@@ -964,6 +862,75 @@ export default function Escala({ navigation }) {
 
       </View>
 
+      <Modal
+        transparent
+        animationType="slide"
+        visible={calendarOpen}
+        onRequestClose={() => setCalendarOpen(false)}
+      >
+        <View style={styles.dateModalOverlay}>
+          <Pressable
+            style={styles.dateModalBackdrop}
+            onPress={() => setCalendarOpen(false)}
+          />
+          <View style={[styles.dateSheet, { paddingBottom: insets.bottom + 16 }]}>
+            <View style={styles.sheetHandle} />
+
+            <View style={styles.dateSheetHeader}>
+              <Ionicons name="calendar" size={22} color="#001830" />
+              <Text style={styles.dateSheetTitle}>Selecionar data</Text>
+            </View>
+
+            <View style={styles.datePreviewBox}>
+              <Text style={styles.datePreviewLabel}>Data escolhida</Text>
+              <Text style={styles.datePreviewValue}>
+                {formatarDataSelecionada(isoFromDate(pickerDate))}
+              </Text>
+              <Text style={styles.datePreviewRange}>
+                Período: {ANO_MIN} a {ANO_MAX}
+              </Text>
+            </View>
+
+            <View style={styles.pickerWrap}>
+              <DateTimePicker
+                value={pickerDate}
+                mode="date"
+                display={pickerDisplay}
+                onChange={aoMudarDataPicker}
+                minimumDate={DATA_MIN_PICKER}
+                maximumDate={DATA_MAX_PICKER}
+                locale="pt-BR"
+                themeVariant="light"
+                style={styles.datePicker}
+              />
+            </View>
+
+            <View style={styles.dateSheetActions}>
+              <TouchableOpacity
+                style={styles.dateBtnOutline}
+                onPress={limparDataFiltro}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.dateBtnOutlineText}>Limpar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dateBtnOutline}
+                onPress={() => setCalendarOpen(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.dateBtnOutlineText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dateBtnPrimary}
+                onPress={confirmarDataPicker}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.dateBtnPrimaryText}>Confirmar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1089,63 +1056,127 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
 
-  calendarPopup: {
-    position: 'absolute',
-    top: 56,
-    right: 0,
-    width: 350,
+  dateModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+
+  dateModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 24, 48, 0.45)',
+  },
+
+  dateSheet: {
     backgroundColor: '#fff',
-    borderRadius: 18,
-    padding: 15,
-    elevation: 5,
-
-    borderWidth: 2,
-    borderColor: '#001830',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 10,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 16,
   },
 
-  selectMonthText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#001830',
-    marginBottom: 20,
-    textAlign: 'center',
+  sheetHandle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#D1D5DB',
+    marginBottom: 14,
   },
 
-  monthGrid: {
+  dateSheetHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-
-  monthCircle: {
-    width: 75,
-    height: 75,
-    borderRadius: 40,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-
-    borderWidth: 2,
-    borderColor: '#001830',
+    gap: 10,
+    marginBottom: 14,
   },
 
-  monthCircleActive: {
-    backgroundColor: '#001830',
-  },
-
-  monthCircleText: {
+  dateSheetTitle: {
     fontSize: 18,
+    fontWeight: '700',
     color: '#001830',
-    fontWeight: '500',
   },
 
-  monthCircleTextActive: {
+  datePreviewBox: {
+    backgroundColor: '#F4F7FA',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+  },
+
+  datePreviewLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 4,
+  },
+
+  datePreviewValue: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#001830',
+  },
+
+  datePreviewRange: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 6,
+  },
+
+  pickerWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 4,
+    minHeight: Platform.OS === 'ios' ? 216 : 180,
+  },
+
+  datePicker: {
+    width: '100%',
+    height: Platform.OS === 'ios' ? 216 : 180,
+  },
+
+  dateSheetActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+
+  dateBtnOutline: {
+    flex: 1,
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 1.5,
+    borderColor: '#001830',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  dateBtnOutlineText: {
+    color: '#001830',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  dateBtnPrimary: {
+    flex: 1,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#001830',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  dateBtnPrimaryText: {
     color: '#fff',
-    fontWeight: 'bold',
-  },
-
-  backMonthButton: {
-    marginBottom: 10,
+    fontSize: 14,
+    fontWeight: '700',
   },
 
   emptyBox: {
@@ -1234,31 +1265,62 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  statusBox: {
+  presencaStatusBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 14,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: '#f4f4f4',
+    padding: 10,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
   },
 
-  statusText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#444',
+  presencaSuccessBox: {
+    backgroundColor: '#E8F6EA',
+    borderColor: '#4CAF50',
+    borderWidth: 1,
   },
 
-  statusConfirmed: {
-    color: '#196f03',
+  presencaUnavailableBox: {
+    backgroundColor: '#FDECEA',
+    borderColor: '#d32f2f',
+    borderWidth: 1,
   },
 
-  statusUnavailable: {
-    color: '#b30000',
+  presencaStatusIcon: {
+    marginRight: 8,
+    fontSize: 16,
   },
 
-  statusDetail: {
+  presencaSuccessIcon: {
+    color: '#4CAF50',
+  },
+
+  presencaUnavailableIcon: {
+    color: '#d32f2f',
+  },
+
+  presencaStatusContent: {
+    flex: 1,
+    flexShrink: 1,
+  },
+
+  presencaStatusText: {
     fontSize: 13,
-    color: '#666',
+    fontWeight: 'bold',
+  },
+
+  presencaStatusWhen: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+
+  presencaSuccessText: {
+    color: '#2E7D32',
+  },
+
+  presencaUnavailableText: {
+    color: '#d32f2f',
   },
 
   modalOverlay: {

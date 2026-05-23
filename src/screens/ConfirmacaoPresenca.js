@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
     View,
@@ -32,10 +32,30 @@ export default function ConfirmacaoPresenca({
             minute: '2-digit',
         });
 
+    const chaveAtividade =
+        activity?.dateKey && activity?.time
+            ? `${activity.dateKey}-${activity.time}`
+            : null;
+
+    const voltarParaEscalaSemana = (presenca) => {
+        navigation.navigate('AppTabs', {
+            screen: 'Escala',
+            params: {
+                abaAtiva: 'proximas',
+                presencaAtualizada: presenca,
+            },
+        });
+    };
+
     const handleParticipation = () => {
         const response = {
             status: 'confirmed',
             when: nowFormatted(),
+            activityKey: chaveAtividade,
+            eventDate: activity?.dateKey,
+            eventDay: activity?.day,
+            eventNumber: activity?.number,
+            eventMonth: activity?.month,
         };
 
         setResult(response);
@@ -46,6 +66,13 @@ export default function ConfirmacaoPresenca({
         }
     };
 
+    useEffect(() => {
+        if (!submitted || !result) return;
+
+        const timer = setTimeout(() => voltarParaEscalaSemana(result), 1800);
+        return () => clearTimeout(timer);
+    }, [submitted, result]);
+
     const handleUnavailable = () => {
         setStep('justify');
     };
@@ -55,6 +82,11 @@ export default function ConfirmacaoPresenca({
             status: 'unavailable',
             justification: justification.trim(),
             when: nowFormatted(),
+            activityKey: chaveAtividade,
+            eventDate: activity?.dateKey,
+            eventDay: activity?.day,
+            eventNumber: activity?.number,
+            eventMonth: activity?.month,
         };
 
         setResult(response);
@@ -133,40 +165,54 @@ export default function ConfirmacaoPresenca({
 
                 {/* RESULTADO */}
                 {submitted ? (
-                    <View style={styles.resultBox}>
-                        <Text style={styles.resultTitle}>
-                            {result.status === 'confirmed'
-                                ? 'Presença confirmada'
-                                : 'Justificativa enviada'}
-                        </Text>
-
-                        <Text style={styles.resultSubtitle}>
-                            {result.status === 'confirmed'
-                                ? 'Obrigado! Sua presença foi registrada.'
-                                : 'Sua justificativa foi enviada ao coordenador.'}
-                        </Text>
-
-                        {result.justification ? (
-                            <Text style={styles.resultDetail}>
-                                {result.justification}
+                    <View
+                        style={[
+                            styles.resultBox,
+                            result.status === 'confirmed'
+                                ? styles.resultBoxSuccess
+                                : styles.resultBoxError,
+                        ]}
+                    >
+                        <View style={styles.resultRow}>
+                            <Text
+                                style={[
+                                    styles.resultIcon,
+                                    result.status === 'confirmed'
+                                        ? styles.resultIconSuccess
+                                        : styles.resultIconError,
+                                ]}
+                            >
+                                {result.status === 'confirmed' ? '✓' : '✕'}
                             </Text>
-                        ) : null}
 
-                        <Text style={styles.resultWhen}>
-                            {result.when}
-                        </Text>
+                            <View style={styles.resultContent}>
+                                <Text
+                                    style={[
+                                        styles.resultMessage,
+                                        result.status === 'confirmed'
+                                            ? styles.resultTextSuccess
+                                            : styles.resultTextError,
+                                    ]}
+                                >
+                                    {result.status === 'confirmed'
+                                        ? 'Vou participar'
+                                        : 'Não poderei ir'}
+                                </Text>
 
-                        <TouchableOpacity
-                            style={[
-                                styles.actionButton,
-                                styles.sendButton,
-                            ]}
-                            onPress={() => navigation.goBack()}
-                        >
-                            <Text style={styles.actionButtonText}>
-                                Voltar
-                            </Text>
-                        </TouchableOpacity>
+                                {result.when ? (
+                                    <Text
+                                        style={[
+                                            styles.resultWhen,
+                                            result.status === 'confirmed'
+                                                ? styles.resultTextSuccess
+                                                : styles.resultTextError,
+                                        ]}
+                                    >
+                                        {result.when}
+                                    </Text>
+                                ) : null}
+                            </View>
+                        </View>
                     </View>
                 ) : (
                     <>
@@ -535,37 +581,61 @@ const styles = StyleSheet.create({
     },
 
     resultBox: {
-        backgroundColor: '#f8f8f8',
-        borderRadius: 24,
-        padding: 24,
+        borderRadius: 12,
+        padding: 10,
+        marginTop: 4,
+    },
+
+    resultRow: {
+        flexDirection: 'row',
         alignItems: 'center',
     },
 
-    resultTitle: {
-        fontSize: 22,
+    resultIcon: {
+        marginRight: 8,
+        fontSize: 16,
+    },
+
+    resultContent: {
+        flex: 1,
+        flexShrink: 1,
+    },
+
+    resultMessage: {
+        fontSize: 13,
         fontWeight: 'bold',
-        color: '#001830',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-
-    resultSubtitle: {
-        fontSize: 15,
-        color: '#555',
-        marginBottom: 14,
-        textAlign: 'center',
-    },
-
-    resultDetail: {
-        fontSize: 15,
-        color: '#444',
-        marginBottom: 10,
-        textAlign: 'center',
     },
 
     resultWhen: {
         fontSize: 13,
-        color: '#777',
-        marginBottom: 18,
+        marginTop: 2,
+    },
+
+    resultBoxSuccess: {
+        backgroundColor: '#E8F6EA',
+        borderWidth: 1,
+        borderColor: '#4CAF50',
+    },
+
+    resultBoxError: {
+        backgroundColor: '#FDECEA',
+        borderWidth: 1,
+        borderColor: '#d32f2f',
+    },
+
+    resultIconSuccess: {
+        color: '#4CAF50',
+    },
+
+    resultIconError: {
+        color: '#d32f2f',
+    },
+
+    resultTextSuccess: {
+        color: '#2E7D32',
+    },
+
+    resultTextError: {
+        color: '#d32f2f',
     },
 });
