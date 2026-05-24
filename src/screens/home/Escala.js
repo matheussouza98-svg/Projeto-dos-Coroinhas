@@ -263,39 +263,18 @@ function DropdownCampo({ label, valor, aberto, onToggle, opcoes, onSelecionar, v
   );
 }
 
+function formatarQuandoConfirmacao(when) {
+  if (!when) return '';
+
+  const match = when.match(/(\d{2})\/(\d{2})\/\d{4},?\s*(\d{2}:\d{2})/);
+  if (match) {
+    return `${match[1]}/${match[2]} às ${match[3]}`;
+  }
+
+  return when;
+}
+
 const chaveAtividade = (activity) => `${activity.dateKey}-${activity.time}`;
-
-const CHAVE_PRESENCAS_SESSAO = '__presencasCoroinhasSessao__';
-
-function obterPresencasArmazenamento() {
-  if (typeof window !== 'undefined') {
-    if (!window[CHAVE_PRESENCAS_SESSAO]) {
-      window[CHAVE_PRESENCAS_SESSAO] = {};
-    }
-    return window[CHAVE_PRESENCAS_SESSAO];
-  }
-
-  if (!global[CHAVE_PRESENCAS_SESSAO]) {
-    global[CHAVE_PRESENCAS_SESSAO] = {};
-  }
-  return global[CHAVE_PRESENCAS_SESSAO];
-}
-
-function getPresencasSessao() {
-  return { ...obterPresencasArmazenamento() };
-}
-
-function salvarPresencaSessao(presenca) {
-  if (presenca?.activityKey) {
-    obterPresencasArmazenamento()[presenca.activityKey] = presenca;
-  }
-  return getPresencasSessao();
-}
-
-function getPresencaAtividade(activityKey) {
-  if (!activityKey) return null;
-  return obterPresencasArmazenamento()[activityKey] ?? null;
-}
 
 export default function Escala({ navigation, route }) {
   const insets = useSafeAreaInsets();
@@ -303,7 +282,7 @@ export default function Escala({ navigation, route }) {
 
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const [abaAtiva, setAbaAtiva] = useState('proximas');
+  const [abaAtiva, setAbaAtiva] = useState('semana');
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [dataSelecionadaISO, setDataSelecionadaISO] = useState('');
@@ -333,27 +312,25 @@ export default function Escala({ navigation, route }) {
   function confirmarData() {
     setSelectedDate(dataSelecionadaISO);
     setCalendarOpen(false);
-    setAbaAtiva('proximas');
+    setAbaAtiva('semana');
   }
 
-  const [attendanceStatus, setAttendanceStatus] = useState(() => getPresencasSessao());
+  const [attendanceStatus, setAttendanceStatus] = useState({});
 
   function registrarPresenca(presenca) {
     if (!presenca?.activityKey) return;
-    setAttendanceStatus(salvarPresencaSessao(presenca));
-  }
 
-  useFocusEffect(
-    useCallback(() => {
-      setAttendanceStatus(getPresencasSessao());
-    }, [])
-  );
+    setAttendanceStatus((prev) => ({
+      ...prev,
+      [presenca.activityKey]: presenca,
+    }));
+  }
 
   useFocusEffect(
     useCallback(() => {
       const aba = route.params?.abaAtiva;
 
-      if (aba === 'proximas' || aba === 'todas') {
+      if (aba === 'semana' || aba === 'todas') {
         setAbaAtiva(aba);
         setSelectedDate(null);
         navigation.setParams({ abaAtiva: undefined });
@@ -510,16 +487,19 @@ export default function Escala({ navigation, route }) {
 
     /* MAIO */
 
-    ...criarEscalaDomingo(
-      '2026-05-24',
-      '24',
-      'MAI',
-      'Lucas',
-      'Enzo',
-      'Pedro',
-      'Gabriel',
-      'Miguel'
-    ),
+    '2026-05-24': [
+      {
+        day: 'DOM',
+        number: '26',
+        month: 'MAI',
+        time: '18h00 • Matriz São José',
+        items: [
+          'Missa: Domingo',
+          'Função: Turiferário',
+          'Equipe: João • Lucas • Gabriel',
+        ],
+      },
+    ],
 
     ...criarEscalaSemana(
       '2026-05-28',
@@ -677,27 +657,14 @@ export default function Escala({ navigation, route }) {
     [dataSelecionadaISO]
   );
 
-  /* =========================================
-     ESCALA SEMANA
-  ========================================= */
+  const DIAS_SEMANA = ['2026-05-24', '2026-05-28', '2026-05-29'];
 
-  const weekSchedule = [
-
-    ...(scheduleData['2026-05-24'] || []).map(item => ({
-      ...item,
-      dateKey: '2026-05-24',
-    })),
-
-    ...(scheduleData['2026-05-28'] || []).map(item => ({
-      ...item,
-      dateKey: '2026-05-28',
-    })),
-
-    ...(scheduleData['2026-05-29'] || []).map(item => ({
-      ...item,
-      dateKey: '2026-05-29',
-    })),
-  ];
+  const weekSchedule = DIAS_SEMANA.flatMap((key) =>
+    (scheduleData[key] || []).map((activity) => ({
+      ...activity,
+      dateKey: key,
+    }))
+  );
 
   /* =========================================
    TODAS ESCALAS
@@ -730,7 +697,7 @@ export default function Escala({ navigation, route }) {
     const key = chaveAtividade(activity);
     navigation.getParent()?.navigate('ConfirmacaoPresenca', {
       activity,
-      presencaSalva: getPresencaAtividade(key) ?? attendanceStatus[key] ?? null,
+      presencaSalva: attendanceStatus[key] ?? null,
       onSubmit: (result) => {
         registrarPresenca({
           ...result,
@@ -740,71 +707,94 @@ export default function Escala({ navigation, route }) {
     });
   };
 
-  const renderPresencaAction = (activity) => {
+  const renderEscalaCard = (activity, index, keyPrefix) => {
     const key = chaveAtividade(activity);
-    const status = getPresencaAtividade(key) ?? attendanceStatus[key];
-
-    if (status) {
-      const confirmado = status.status === 'confirmed';
-
-      return (
-        <View
-          style={[
-            styles.presencaStatusBox,
-            confirmado
-              ? styles.presencaSuccessBox
-              : styles.presencaUnavailableBox,
-          ]}
-        >
-          <Text
-            style={[
-              styles.presencaStatusIcon,
-              confirmado
-                ? styles.presencaSuccessIcon
-                : styles.presencaUnavailableIcon,
-            ]}
-          >
-            {confirmado ? '✓' : '✕'}
-          </Text>
-
-          <View style={styles.presencaStatusContent}>
-            <Text
-              style={[
-                styles.presencaStatusText,
-                confirmado
-                  ? styles.presencaSuccessText
-                  : styles.presencaUnavailableText,
-              ]}
-            >
-              {confirmado ? 'Vou participar' : 'Não poderei ir'}
-            </Text>
-
-            {status.when ? (
-              <Text
-                style={[
-                  styles.presencaStatusWhen,
-                  confirmado
-                    ? styles.presencaSuccessText
-                    : styles.presencaUnavailableText,
-                ]}
-              >
-                {status.when}
-              </Text>
-            ) : null}
-          </View>
-        </View>
-      );
-    }
+    const status = attendanceStatus[key] ?? null;
+    const confirmado = status?.status === 'confirmed';
+    const indisponivel = status?.status === 'unavailable';
+    const temResposta = confirmado || indisponivel;
 
     return (
-      <TouchableOpacity
-        style={styles.confirmPresenceButton}
-        onPress={() => openConfirmation(activity)}
-      >
-        <Text style={styles.confirmPresenceText}>
-          Confirmação de presença
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.card} key={`${keyPrefix}-${index}`}>
+        <View style={styles.cardMainRow}>
+          <View style={styles.dataBox}>
+            <Text style={styles.dataDiaSemana}>{activity.day}</Text>
+            <Text style={styles.dataNumero}>{activity.number}</Text>
+            <Text style={styles.dataMes}>{activity.month}</Text>
+          </View>
+
+          <View style={styles.cardInfo}>
+            <Text style={styles.horario}>{activity.time}</Text>
+
+            {activity.items.map((item, itemIndex) => (
+              <Text style={styles.info} key={itemIndex}>
+                {item}
+              </Text>
+            ))}
+
+            {temResposta ? (
+              <View
+                style={[
+                  styles.statusBadge,
+                  confirmado
+                    ? styles.statusBadgeConfirmado
+                    : styles.statusBadgeIndisponivel,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.statusBadgeText,
+                    confirmado
+                      ? styles.statusBadgeTextConfirmado
+                      : styles.statusBadgeTextIndisponivel,
+                  ]}
+                >
+                  {confirmado ? 'Confirmado' : 'Indisponível'}
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.confirmPresenceButton}
+                onPress={() => openConfirmation(activity)}
+              >
+                <Text style={styles.confirmPresenceText}>
+                  Confirmar presença
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {temResposta ? (
+          <View
+            style={[
+              styles.presencaFooter,
+              confirmado
+                ? styles.presencaFooterConfirmado
+                : styles.presencaFooterIndisponivel,
+            ]}
+          >
+            <View
+              style={[
+                styles.presencaFooterIconCircle,
+                confirmado
+                  ? styles.presencaFooterIconConfirmado
+                  : styles.presencaFooterIconIndisponivel,
+              ]}
+            >
+              <Text style={styles.presencaFooterIconText}>
+                {confirmado ? '✓' : '✕'}
+              </Text>
+            </View>
+
+            <Text style={styles.presencaFooterText}>
+              {confirmado
+                ? `Você confirmou sua presença em ${formatarQuandoConfirmacao(status.when)}`
+                : `Você informou que não poderá ir em ${formatarQuandoConfirmacao(status.when)}`}
+            </Text>
+          </View>
+        ) : null}
+      </View>
     );
   };
 
@@ -903,19 +893,19 @@ export default function Escala({ navigation, route }) {
 
           <TouchableOpacity
             style={
-              abaAtiva === 'proximas'
+              abaAtiva === 'semana'
                 ? styles.tabActive
                 : styles.tab
             }
             onPress={() => {
-              setAbaAtiva('proximas');
+              setAbaAtiva('semana');
               setSelectedDate(null);
             }}
           >
 
             <Text
               style={
-                abaAtiva === 'proximas'
+                abaAtiva === 'semana'
                   ? styles.tabTextActive
                   : styles.tabText
               }
@@ -961,53 +951,13 @@ export default function Escala({ navigation, route }) {
 
             selectedSchedule.length > 0 ? (
 
-              selectedSchedule.map((activity, index) => (
-
-                <View
-                  style={styles.card}
-                  key={`${selectedDate}-${index}`}
-                >
-
-                  <View style={styles.dataBox}>
-
-                    <Text style={styles.dataDiaSemana}>
-                      {activity.day}
-                    </Text>
-
-                    <Text style={styles.dataNumero}>
-                      {activity.number}
-                    </Text>
-
-                    <Text style={styles.dataMes}>
-                      {activity.month}
-                    </Text>
-
-                  </View>
-
-                  <View style={styles.cardInfo}>
-
-                    <Text style={styles.horario}>
-                      {activity.time}
-                    </Text>
-
-                    {activity.items.map((item, itemIndex) => (
-
-                      <Text
-                        style={styles.info}
-                        key={itemIndex}
-                      >
-                        {item}
-                      </Text>
-
-                    ))}
-
-                    {renderPresencaAction(activity)}
-
-                  </View>
-
-                </View>
-
-              ))
+              selectedSchedule.map((activity, index) =>
+                renderEscalaCard(
+                  { ...activity, dateKey: selectedDate },
+                  index,
+                  selectedDate
+                )
+              )
 
             ) : (
               renderSemEscala(styles.emptyBox)
@@ -1015,56 +965,16 @@ export default function Escala({ navigation, route }) {
 
           ) : (
 
-            (abaAtiva === 'proximas'
+            (abaAtiva === 'semana'
               ? weekSchedule
               : allSchedule
-            ).map((activity, index) => (
-
-              <View
-                style={styles.card}
-                key={`${activity.dateKey}-${index}`}
-              >
-
-                <View style={styles.dataBox}>
-
-                  <Text style={styles.dataDiaSemana}>
-                    {activity.day}
-                  </Text>
-
-                  <Text style={styles.dataNumero}>
-                    {activity.number}
-                  </Text>
-
-                  <Text style={styles.dataMes}>
-                    {activity.month}
-                  </Text>
-
-                </View>
-
-                <View style={styles.cardInfo}>
-
-                  <Text style={styles.horario}>
-                    {activity.time}
-                  </Text>
-
-                  {activity.items.map((item, itemIndex) => (
-
-                    <Text
-                      style={styles.info}
-                      key={itemIndex}
-                    >
-                      {item}
-                    </Text>
-
-                  ))}
-
-                  {renderPresencaAction(activity)}
-
-                </View>
-
-              </View>
-
-            ))
+            ).map((activity, index) =>
+              renderEscalaCard(
+                activity,
+                index,
+                activity.dateKey || `lista-${abaAtiva}`
+              )
+            )
           )}
 
         </ScrollView>
@@ -1624,40 +1534,54 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 14,
+    borderRadius: 16,
     marginBottom: 18,
-    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#E8EDF3',
+    overflow: 'hidden',
+    shadowColor: '#001830',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
   },
 
+  cardMainRow: {
+    flexDirection: 'row',
+    padding: 14,
+  },
+
   dataBox: {
-    width: 75,
-    height: 110,
+    width: 72,
+    minHeight: 96,
     backgroundColor: '#001830',
-    borderRadius: 18,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 14,
+    paddingVertical: 10,
   },
 
   dataDiaSemana: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 
   dataNumero: {
     color: '#fff',
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: 'bold',
     marginVertical: 2,
+    lineHeight: 36,
   },
 
   dataMes: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 
   cardInfo: {
@@ -1666,16 +1590,17 @@ const styles = StyleSheet.create({
   },
 
   horario: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#444',
-    marginBottom: 10,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#001830',
+    marginBottom: 8,
   },
 
   info: {
-    fontSize: 15,
-    color: '#555',
-    marginBottom: 4,
+    fontSize: 14,
+    color: '#4A5568',
+    marginBottom: 3,
+    lineHeight: 20,
   },
 
   confirmPresenceButton: {
@@ -1685,71 +1610,88 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     alignItems: 'center',
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
   },
 
   confirmPresenceText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#001830',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
 
-  presencaStatusBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  statusBadge: {
+    alignSelf: 'flex-end',
     marginTop: 10,
     borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 22,
-    minWidth: 240,
-    alignSelf: 'flex-start',
-    borderWidth: 2,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
   },
 
-  presencaSuccessBox: {
-    backgroundColor: '#E8F6EA',
-    borderColor: '#4CAF50',
+  statusBadgeConfirmado: {
+    backgroundColor: '#E8F5E9',
   },
 
-  presencaUnavailableBox: {
-    backgroundColor: '#FDECEA',
-    borderColor: '#d32f2f',
+  statusBadgeIndisponivel: {
+    backgroundColor: '#FCE4EC',
   },
 
-  presencaStatusIcon: {
-    marginRight: 8,
-    fontSize: 16,
+  statusBadgeText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
 
-  presencaSuccessIcon: {
-    color: '#4CAF50',
-  },
-
-  presencaUnavailableIcon: {
-    color: '#d32f2f',
-  },
-
-  presencaStatusContent: {
-    flex: 1,
-    flexShrink: 1,
-  },
-
-  presencaStatusText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-
-  presencaStatusWhen: {
-    fontSize: 14,
-    marginTop: 2,
-  },
-
-  presencaSuccessText: {
+  statusBadgeTextConfirmado: {
     color: '#2E7D32',
   },
 
-  presencaUnavailableText: {
-    color: '#d32f2f',
+  statusBadgeTextIndisponivel: {
+    color: '#C62828',
+  },
+
+  presencaFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    gap: 10,
+  },
+
+  presencaFooterConfirmado: {
+    backgroundColor: '#E8F5E9',
+  },
+
+  presencaFooterIndisponivel: {
+    backgroundColor: '#FCE4EC',
+  },
+
+  presencaFooterIconCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  presencaFooterIconConfirmado: {
+    backgroundColor: '#43A047',
+  },
+
+  presencaFooterIconIndisponivel: {
+    backgroundColor: '#E53935',
+  },
+
+  presencaFooterIconText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 14,
+  },
+
+  presencaFooterText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#4A5568',
+    lineHeight: 18,
   },
 
   modalOverlay: {

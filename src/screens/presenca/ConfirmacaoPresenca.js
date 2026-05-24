@@ -12,6 +12,17 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
+function formatarQuandoConfirmacao(when) {
+    if (!when) return '';
+
+    const match = when.match(/(\d{2})\/(\d{2})\/\d{4},?\s*(\d{2}:\d{2})/);
+    if (match) {
+        return `${match[1]}/${match[2]} às ${match[3]}`;
+    }
+
+    return when;
+}
+
 export default function ConfirmacaoPresenca({
     route,
     navigation,
@@ -158,52 +169,30 @@ export default function ConfirmacaoPresenca({
                 {submitted ? (
                     <View
                         style={[
-                            styles.resultBox,
+                            styles.resultFooter,
                             result.status === 'confirmed'
-                                ? styles.resultBoxSuccess
-                                : styles.resultBoxError,
+                                ? styles.resultFooterConfirmado
+                                : styles.resultFooterIndisponivel,
                         ]}
                     >
-                        <View style={styles.resultRow}>
-                            <Text
-                                style={[
-                                    styles.resultIcon,
-                                    result.status === 'confirmed'
-                                        ? styles.resultIconSuccess
-                                        : styles.resultIconError,
-                                ]}
-                            >
+                        <View
+                            style={[
+                                styles.resultFooterIconCircle,
+                                result.status === 'confirmed'
+                                    ? styles.resultFooterIconConfirmado
+                                    : styles.resultFooterIconIndisponivel,
+                            ]}
+                        >
+                            <Text style={styles.resultFooterIconText}>
                                 {result.status === 'confirmed' ? '✓' : '✕'}
                             </Text>
-
-                            <View style={styles.resultContent}>
-                                <Text
-                                    style={[
-                                        styles.resultMessage,
-                                        result.status === 'confirmed'
-                                            ? styles.resultTextSuccess
-                                            : styles.resultTextError,
-                                    ]}
-                                >
-                                    {result.status === 'confirmed'
-                                        ? 'Vou participar'
-                                        : 'Não poderei ir'}
-                                </Text>
-
-                                {result.when ? (
-                                    <Text
-                                        style={[
-                                            styles.resultWhen,
-                                            result.status === 'confirmed'
-                                                ? styles.resultTextSuccess
-                                                : styles.resultTextError,
-                                        ]}
-                                    >
-                                        {result.when}
-                                    </Text>
-                                ) : null}
-                            </View>
                         </View>
+
+                        <Text style={styles.resultFooterText}>
+                            {result.status === 'confirmed'
+                                ? `Você confirmou sua presença em ${formatarQuandoConfirmacao(result.when)}`
+                                : `Você informou que não poderá ir em ${formatarQuandoConfirmacao(result.when)}`}
+                        </Text>
                     </View>
                 ) : (
                     <>
@@ -571,66 +560,50 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
 
-    resultBox: {
+    resultFooter: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
-        borderRadius: 20,
-        paddingVertical: 8,
-        paddingHorizontal: 22,
-        minWidth: 240,
-        alignSelf: 'flex-start',
-        borderWidth: 2,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        borderRadius: 12,
+        gap: 10,
     },
 
-    resultRow: {
-        flexDirection: 'row',
+    resultFooterConfirmado: {
+        backgroundColor: '#E8F5E9',
+    },
+
+    resultFooterIndisponivel: {
+        backgroundColor: '#FCE4EC',
+    },
+
+    resultFooterIconCircle: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
         alignItems: 'center',
+        justifyContent: 'center',
     },
 
-    resultIcon: {
-        marginRight: 8,
-        fontSize: 16,
+    resultFooterIconConfirmado: {
+        backgroundColor: '#43A047',
     },
 
-    resultContent: {
+    resultFooterIconIndisponivel: {
+        backgroundColor: '#E53935',
+    },
+
+    resultFooterIconText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '700',
+        lineHeight: 14,
+    },
+
+    resultFooterText: {
         flex: 1,
-        flexShrink: 1,
-    },
-
-    resultMessage: {
-        fontSize: 14,
-        fontWeight: 'bold',
-    },
-
-    resultWhen: {
-        fontSize: 14,
-        marginTop: 2,
-    },
-
-    resultBoxSuccess: {
-        backgroundColor: '#E8F6EA',
-        borderColor: '#4CAF50',
-    },
-
-    resultBoxError: {
-        backgroundColor: '#FDECEA',
-        borderColor: '#d32f2f',
-    },
-
-    resultIconSuccess: {
-        color: '#4CAF50',
-    },
-
-    resultIconError: {
-        color: '#d32f2f',
-    },
-
-    resultTextSuccess: {
-        color: '#2E7D32',
-    },
-
-    resultTextError: {
-        color: '#d32f2f',
+        fontSize: 13,
+        color: '#4A5568',
+        lineHeight: 18,
     },
 });

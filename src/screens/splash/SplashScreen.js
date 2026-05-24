@@ -37,8 +37,9 @@ export default function SplashScreen({ navigation }) {
     outputRange: ['0deg', '360deg'],
   });
 
-  // 🔥 evita aparecer “meio carregado”
-  if (!ready) return null;
+  if (!ready) {
+    return <View style={styles.container} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -46,7 +47,7 @@ export default function SplashScreen({ navigation }) {
       <View style={styles.center}>
 
         <Image
-          source={require('./assets/background.png')}
+          source={require('../../../assets/background.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -58,7 +59,7 @@ export default function SplashScreen({ navigation }) {
         </Text>
 
         <Animated.Image
-          source={require('./assets/loading.png')}
+          source={require('../../../assets/loading.png')}
           style={[styles.loading, { transform: [{ rotate }] }]}
         />
 
