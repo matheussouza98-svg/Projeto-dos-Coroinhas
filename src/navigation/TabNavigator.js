@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import Inicio from '../screens/home/Inicio';
 import Escala from '../screens/home/Escala';
-import Oracoes from '../screens/home/Oracoes';
+import OracoesNavigator from './OracoesNavigator';
 import Perfil from '../screens/home/Perfil';
 import { TAB_BAR } from '../constants';
 
@@ -50,7 +50,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Oracoes"
-        component={Oracoes}
+        component={OracoesNavigator}
         options={{ tabBarLabel: 'Orações' }}
       />
       <Tab.Screen
