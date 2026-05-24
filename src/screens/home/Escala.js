@@ -494,9 +494,8 @@ export default function Escala({ navigation, route }) {
         month: 'MAI',
         time: '18h00 • Matriz São José',
         items: [
-          'Missa: Domingo',
-          'Função: Turiferário',
-          'Equipe: João • Lucas • Gabriel',
+          'Servir:: Pedro e Gabriel',
+          'Sino: Pedro',
         ],
       },
     ],
