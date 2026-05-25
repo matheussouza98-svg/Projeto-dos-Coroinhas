@@ -30,17 +30,16 @@ function DivisorDourado() {
   return (
     <View style={styles.divisor}>
       <View style={styles.linhaDourada} />
-      <MaterialCommunityIcons name="cross" size={12} color={GOLD} />
+      <MaterialCommunityIcons name="cross" size={14} color={GOLD} />
       <View style={styles.linhaDourada} />
     </View>
   );
 }
-
 function DecoracaoRamo() {
   return (
     <Image
       source={require('../../../assets/decoracao-ramo.png')}
-      style={[styles.decoracaoRamo, styles.decoracaoRamoBlend]}
+      style={styles.decoracaoRamo}
       contentFit="contain"
       transition={0}
       pointerEvents="none"
@@ -59,7 +58,7 @@ export default function OracaoCoroinha({ navigation }) {
           style={styles.headerSide}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="arrow-back" size={24} color={AZUL} />
+          <Ionicons name="arrow-back" size={28} color={AZUL} />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle} numberOfLines={1}>
@@ -94,7 +93,7 @@ export default function OracaoCoroinha({ navigation }) {
           />
         </View>
 
-        <Text style={styles.titulo}>Oração do Coroinha</Text>
+        <Text style={styles.titulo}>Servindo com Fé</Text>
 
         <DivisorDourado />
 
@@ -145,9 +144,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingTop: 8,
-    paddingBottom: 6,
+    justifyContent: 'space-between',
+
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 2,
+
+    marginBottom: 4,
   },
 
   headerSide: {
@@ -159,8 +162,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 18,
+
+    fontSize: 17,
     fontWeight: '700',
+
     color: AZUL,
   },
 
@@ -169,22 +174,23 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 16,
-    paddingBottom: 100,
-    alignItems: 'center',
+    paddingBottom: 20,
   },
 
   ilustracaoContainer: {
-    width: '88%',
+    width: '82%',
     aspectRatio: 1024 / 602,
     borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 14,
+    marginBottom: 18,
     alignSelf: 'center',
   },
 
   ilustracao: {
     width: '100%',
+    alignSelf: 'center',
     height: '100%',
   },
 
@@ -199,8 +205,12 @@ const styles = StyleSheet.create({
   divisor: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '68%',
+    justifyContent: 'center',
+    alignSelf: 'center',
+
+    width: '78%',
     marginBottom: 10,
+
     gap: 8,
   },
 
@@ -216,27 +226,35 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     textAlign: 'center',
     lineHeight: 18,
-    marginBottom: 16,
+    marginTop: 2,
+    marginBottom: 14,
     paddingHorizontal: 8,
   },
 
   cardOracao: {
     width: '100%',
-    backgroundColor: '#fff',
+
+    backgroundColor: '#FFFDF8',
     borderRadius: 12,
-    paddingTop: 20,
-    paddingBottom: 14,
+
+    paddingTop: 16,
+    paddingBottom: 16,
     paddingHorizontal: 16,
+
+    marginTop: 8,
     marginBottom: 12,
+
     alignItems: 'center',
     overflow: 'hidden',
-    shadowColor: AZUL,
+
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
+
     borderWidth: 1,
-    borderColor: '#EEF2F7',
+    borderColor: '#F3E7C7',
   },
 
   iconeOracao: {
@@ -244,13 +262,19 @@ const styles = StyleSheet.create({
   },
 
   textoOracao: {
-    fontSize: 14,
+    fontSize: 16,
     color: AZUL,
-    lineHeight: 24,
+
+    lineHeight: 30,
     textAlign: 'center',
-    paddingBottom: 8,
-    paddingHorizontal: 8,
+
+    paddingBottom: 6,
+    paddingHorizontal: 18,
+
+    maxWidth: '88%',
+
     zIndex: 1,
+
     fontFamily: Platform.select({
       ios: 'Georgia',
       android: 'serif',
@@ -260,17 +284,20 @@ const styles = StyleSheet.create({
 
   decoracaoRamo: {
     position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 88,
-    aspectRatio: 280 / 321,
-    opacity: 0.48,
-    zIndex: 0,
-  },
 
-  decoracaoRamoBlend: {
-    // Fundo escuro some no card branco
-    blendMode: 'screen',
+    right: -10,
+    bottom: -8,
+
+    width: 135,
+    height: 135,
+
+    opacity: 0.9,
+
+    tintColor: '#D4AF37',
+
+    zIndex: 0,
+
+    transform: [{ rotate: '-6deg' }],
   },
 
   cardCitacao: {
@@ -278,16 +305,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F7F3EA',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    gap: 10,
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    gap: 14,
   },
 
   iconeLivro: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
