@@ -21,7 +21,7 @@ const CONTEUDOS = [
   {
     id: 'respostas-missa',
     titulo: 'Respostas da Missa',
-    descricao: 'Respostas que o coroinha deve saber.',
+    descricao: 'Acompanhe as principais respostas e aclamações da Santa Missa.',
     iconFamily: 'MaterialCommunityIcons',
     iconName: 'book-cross',
   },
@@ -62,6 +62,11 @@ export default function Oracoes({ navigation }) {
   const abrirConteudo = (item) => {
     if (item.id === 'oracao-coroinha') {
       navigation.navigate('OracaoCoroinha');
+      return;
+    }
+
+    if (item.id === 'respostas-missa') {
+      navigation.navigate('RespostasMissa');
       return;
     }
 

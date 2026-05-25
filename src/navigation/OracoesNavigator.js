@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Oracoes from '../screens/home/Oracoes';
 import OracaoCoroinha from '../screens/oracoes/OracaoCoroinha';
+import RespostasMissa from '../screens/oracoes/RespostasMissa';
 
 const Stack = createNativeStackNavigator();
 
@@ -11,6 +12,7 @@ export default function OracoesNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="OracoesHome" component={Oracoes} />
       <Stack.Screen name="OracaoCoroinha" component={OracaoCoroinha} />
+      <Stack.Screen name="RespostasMissa" component={RespostasMissa} />
     </Stack.Navigator>
   );
 }
