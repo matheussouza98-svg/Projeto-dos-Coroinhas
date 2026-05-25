@@ -48,7 +48,6 @@ function DecoracaoRamo() {
 }
 
 export default function OracaoCoroinha({ navigation }) {
-  const [favorito, setFavorito] = useState(false);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -65,17 +64,7 @@ export default function OracaoCoroinha({ navigation }) {
           Oração do Coroinha
         </Text>
 
-        <TouchableOpacity
-          onPress={() => setFavorito((v) => !v)}
-          style={styles.headerSide}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons
-            name={favorito ? 'star' : 'star-outline'}
-            size={22}
-            color={GOLD}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerSide} />
       </View>
 
       <ScrollView
