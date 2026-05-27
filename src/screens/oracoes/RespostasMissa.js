@@ -11,8 +11,15 @@ import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const ICONES_IMAGEM = {
-  calice: require('../../../assets/icon-calice.png'),
-  'liturgia-palavra': require('../../../assets/icon-liturgia-palavra.png'),
+  'ritos-iniciais': require('../../../assets/logo dos Ritos Iniciais.png'),
+
+  'liturgia-palavra': require('../../../assets/logo da Liturgia da Palavra.png'),
+
+  'liturgia-eucaristica': require('../../../assets/logo da Liturgia Eucarística.png'),
+
+  'rito-comunhao': require('../../../assets/logo do Rito da Comunhão.png'),
+
+  'ritos-finais': require('../../../assets/logo dos Ritos Finais.png'),
 };
 
 const AZUL = '#001830';
@@ -21,29 +28,48 @@ const AZUL_TAB = '#3B82C4';
 const DOURADO = '#C89D2A';
 
 const CATEGORIAS = [
-  { id: 'todas', label: 'Todas', icon: 'format-list-bulleted' },
-  { id: 'ritos-iniciais', label: 'Ritos Iniciais', icon: 'cross' },
+  {
+    id: 'todas',
+    label: 'Todas',
+    icon: 'format-list-bulleted',
+  },
+
+  {
+    id: 'ritos-iniciais',
+    label: 'Ritos Iniciais',
+    imagem: 'ritos-iniciais',
+  },
+
   {
     id: 'liturgia-palavra',
     label: 'Liturgia da Palavra',
-    icon: 'book-open-page-variant',
     imagem: 'liturgia-palavra',
   },
+
   {
     id: 'liturgia-eucaristica',
     label: 'Liturgia Eucarística',
-    icon: 'glass-wine',
-    imagem: 'calice',
+    imagem: 'liturgia-eucaristica',
   },
-  { id: 'rito-comunhao', label: 'Rito da Comunhão', icon: 'barley' },
-  { id: 'ritos-finais', label: 'Ritos Finais', icon: 'cross' },
+
+  {
+    id: 'rito-comunhao',
+    label: 'Rito da Comunhão',
+    imagem: 'rito-comunhao',
+  },
+
+  {
+    id: 'ritos-finais',
+    label: 'Ritos Finais',
+    imagem: 'ritos-finais',
+  },
 ];
 
 const SECOES = [
   {
     id: 'ritos-iniciais',
     titulo: 'RITOS INICIAIS',
-    icon: 'cross',
+    imagem: 'ritos-iniciais',
     cor: '#4A7FD4',
     itens: [
       {
@@ -110,7 +136,7 @@ const SECOES = [
     id: 'liturgia-eucaristica',
     titulo: 'LITURGIA EUCARÍSTICA',
     icon: 'glass-wine',
-    imagem: 'calice',
+    imagem: 'liturgia-eucaristica',
     cor: '#C89D2A',
     itens: [
       { tipo: 'titulo', label: 'Ofertório' },
@@ -148,7 +174,7 @@ const SECOES = [
   {
     id: 'rito-comunhao',
     titulo: 'RITO DA COMUNHÃO',
-    icon: 'barley',
+    imagem: 'rito-comunhao',
     cor: '#7C5CBF',
     itens: [
       { tipo: 'titulo', label: 'Rito da Paz' },
@@ -179,7 +205,7 @@ const SECOES = [
   {
     id: 'ritos-finais',
     titulo: 'RITOS FINAIS',
-    icon: 'cross',
+    imagem: 'ritos-finais',
     cor: '#4A7FD4',
     itens: [
       { label: 'Sacerdote', resposta: 'O Senhor esteja convosco.' },

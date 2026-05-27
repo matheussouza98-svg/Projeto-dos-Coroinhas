@@ -285,7 +285,7 @@ export default function Inicio({ navigation }) {
               </Text>
 
               <Text style={styles.confirmSubtitle}>
-                Missa - Domingo às 08hs
+                Reunião de Coroinhas - Sábado às 15hs.
               </Text>
 
               <View style={styles.confirmButtons}>
