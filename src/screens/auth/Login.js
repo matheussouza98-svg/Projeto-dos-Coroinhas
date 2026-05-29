@@ -6,16 +6,18 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useStatusBarPadding } from '../../utils/safeArea';
 
 const { width } = Dimensions.get('window');
 
 export default function Login({ navigation }) {
+  const topPadding = useStatusBarPadding(16);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
@@ -33,13 +35,13 @@ export default function Login({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
+      <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { paddingTop: topPadding }]}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.container}>
@@ -109,7 +111,7 @@ export default function Login({ navigation }) {
 
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

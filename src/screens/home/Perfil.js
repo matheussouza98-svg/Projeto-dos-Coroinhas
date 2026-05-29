@@ -3,12 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useStatusBarPadding } from '../../utils/safeArea';
+import MenuNavegacao from '../../components/MenuNavegacao';
 
 const OPCOES = [
   {
@@ -58,14 +60,18 @@ function IconeOpcao({ item, size = 26 }) {
   );
 }
 
-export default function Perfil() {
+export default function Perfil({ navigation }) {
+  const topPadding = useStatusBarPadding();
+
   const abrirOpcao = (item) => {
     Alert.alert(item.titulo, 'Conteúdo em breve.');
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
+      <View style={[styles.container, { paddingTop: topPadding }]}>
+        <MenuNavegacao navigation={navigation} />
+
         <Text style={styles.titulo}>Perfil</Text>
 
         <ScrollView
@@ -115,8 +121,8 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingTop: 40,
     paddingHorizontal: 20,
+    position: 'relative',
   },
 
   scroll: {
@@ -132,7 +138,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#001830',
+    marginTop: 8,
     marginBottom: 25,
+    paddingHorizontal: 40,
   },
 
   card: {

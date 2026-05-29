@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,7 +13,8 @@ import {
   Pressable,
 } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useStatusBarPadding } from '../../utils/safeArea';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -223,6 +223,7 @@ function DropdownCampo({ label, valor, aberto, onToggle, opcoes, onSelecionar, v
 
 export default function Cadastro({ navigation }) {
   const insets = useSafeAreaInsets();
+  const topPadding = useStatusBarPadding(12);
   const [form, setForm] = useState({
     nome: '',
     nascimento: '',
@@ -374,13 +375,13 @@ export default function Cadastro({ navigation }) {
   ];
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { paddingTop: topPadding }]}
           keyboardShouldPersistTaps="handled"
         >
           <TouchableOpacity
@@ -682,7 +683,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flexGrow: 1,
-    paddingVertical: 20,
+    paddingBottom: 20,
     paddingHorizontal: 16,
   },
   backLink: {

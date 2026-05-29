@@ -5,17 +5,19 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Dimensions,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useStatusBarPadding } from "../../utils/safeArea";
 
 const { width } = Dimensions.get("window");
 
 export default function CodigoVerificacao({ navigation }) {
+  const topPadding = useStatusBarPadding(12);
   const [codigo, setCodigo] = useState(["", "", "", "", "", ""]);
   const [erro, setErro] = useState(false);
   const [tempo, setTempo] = useState(30);
@@ -77,15 +79,15 @@ export default function CodigoVerificacao({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: topPadding }]}>
           <View style={styles.page}>
             <TouchableOpacity
-              style={styles.backLink}
+              style={[styles.backLink, { top: topPadding }]}
               onPress={() => navigation.goBack()}
             >
               <Text style={styles.backLinkText}>{'<'} Voltar</Text>
@@ -166,7 +168,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 70,
   },
 
   container: {

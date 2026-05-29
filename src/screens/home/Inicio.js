@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
+import MenuNavegacao from '../../components/MenuNavegacao';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useStatusBarPadding } from '../../utils/safeArea';
 
 export default function Inicio({ navigation }) {
-  const [menuVisible, setMenuVisible] = useState(false);
+  const topPadding = useStatusBarPadding();
 
   // ✅ MENSAGEM
   const [mensagem, setMensagem] = useState('');
@@ -59,57 +61,11 @@ export default function Inicio({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: topPadding }]}>
 
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => setMenuVisible((v) => !v)}
-          >
-            <Text style={styles.menuIcon}>≡</Text>
-          </TouchableOpacity>
-
-          {menuVisible && (
-            <View style={styles.dropdownMenu}>
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Inicio');
-                }}
-              >
-                <Text style={styles.dropdownText}>Início</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Escala');
-                }}
-              >
-                <Text style={styles.dropdownText}>Escala</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Oracoes');
-                }}
-              >
-                <Text style={styles.dropdownText}>Orações</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.dropdownItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  navigation.navigate('Perfil');
-                }}
-              >
-                <Text style={styles.dropdownText}>Perfil</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <MenuNavegacao navigation={navigation} />
 
           <View style={styles.headerText}>
 
@@ -327,54 +283,9 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingTop: 40,
     paddingHorizontal: 20,
     paddingBottom: 350,
     position: 'relative',
-  },
-
-  menuButton: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    padding: 8,
-    zIndex: 30,
-  },
-
-  menuIcon: {
-    color: '#000',
-    fontSize: 26,
-    fontWeight: 'bold',
-  },
-
-  dropdownMenu: {
-    position: 'absolute',
-    top: 52,
-    left: 12,
-    backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    zIndex: 25,
-    minWidth: 160,
-  },
-
-  dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-
-  dropdownText: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: 'normal',
   },
 
   headerText: {

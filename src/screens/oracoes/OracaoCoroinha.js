@@ -3,13 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useStatusBarPadding } from '../../utils/safeArea';
 
 const GOLD = '#C89D2A';
 const AZUL = '#001830';
@@ -48,10 +49,11 @@ function DecoracaoRamo() {
 }
 
 export default function OracaoCoroinha({ navigation }) {
+  const headerPaddingTop = useStatusBarPadding(4);
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
+      <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.headerSide}
@@ -136,9 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
 
     paddingHorizontal: 16,
-    paddingTop: 4,
     paddingBottom: 2,
-
     marginBottom: 4,
   },
 

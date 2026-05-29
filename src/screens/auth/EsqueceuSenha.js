@@ -5,16 +5,18 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Dimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useStatusBarPadding } from "../../utils/safeArea";
 
 const { width } = Dimensions.get("window");
 
 export default function EsqueceuSenha({ navigation }) {
+  const topPadding = useStatusBarPadding(12);
   const [email, setEmail] = useState("");
   const [erro, setErro] = useState("");
 
@@ -38,15 +40,15 @@ export default function EsqueceuSenha({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: topPadding }]}>
           <View style={styles.page}>
             <TouchableOpacity
-              style={styles.backLink}
+              style={[styles.backLink, { top: topPadding }]}
               onPress={() => navigation.goBack()}
             >
               <Text style={styles.backLinkText}>{'<'} Voltar</Text>
@@ -97,7 +99,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 70,
   },
 
   container: {

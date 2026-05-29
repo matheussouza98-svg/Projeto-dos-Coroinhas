@@ -4,13 +4,13 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     TouchableOpacity,
     ScrollView,
     TextInput,
 } from 'react-native';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useStatusBarPadding } from '../../utils/safeArea';
 
 function formatarQuandoConfirmacao(when) {
     if (!when) return '';
@@ -47,6 +47,8 @@ export default function ConfirmacaoPresenca({
         activity?.dateKey && activity?.time
             ? `${activity.dateKey}-${activity.time}`
             : null;
+
+    const headerPaddingTop = useStatusBarPadding(4);
 
     const voltarParaEscala = () => {
         navigation.goBack();
@@ -110,9 +112,9 @@ export default function ConfirmacaoPresenca({
     };
 
     return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
             {/* HEADER */}
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
                 <TouchableOpacity
                     onPress={handleBack}
                     style={styles.backButton}
@@ -350,7 +352,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: 20,
         paddingBottom: 10,
     },
 

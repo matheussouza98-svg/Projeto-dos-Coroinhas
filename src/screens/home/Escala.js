@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   ScrollView,
   TextInput,
@@ -13,7 +12,8 @@ import {
 } from 'react-native';
 
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useStatusBarPadding } from '../../utils/safeArea';
 import { Ionicons } from '@expo/vector-icons';
 
 const ANO_MIN = 2000;
@@ -278,6 +278,7 @@ const chaveAtividade = (activity) => `${activity.dateKey}-${activity.time}`;
 
 export default function Escala({ navigation, route }) {
   const insets = useSafeAreaInsets();
+  const topPadding = useStatusBarPadding();
   const [menuVisible, setMenuVisible] = useState(false);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -804,9 +805,9 @@ export default function Escala({ navigation, route }) {
 
   return (
 
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
 
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: topPadding }]}>
 
         <TouchableOpacity
           style={styles.menuButton}
@@ -1147,7 +1148,6 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingTop: 40,
     paddingHorizontal: 20,
     position: 'relative',
   },

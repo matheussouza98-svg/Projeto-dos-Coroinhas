@@ -3,12 +3,19 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
+  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useStatusBarPadding } from '../../utils/safeArea';
+import MenuNavegacao from '../../components/MenuNavegacao';
+
+const ICONES_IMAGEM = {
+  turibulo: require('../../../assets/icon-turibulo-oracoes.png'),
+};
 
 const CONTEUDOS = [
   {
@@ -36,8 +43,7 @@ const CONTEUDOS = [
     id: 'funcoes-coroinha',
     titulo: 'Funções do Coroinha',
     descricao: 'Entenda cada função e sua importância.',
-    iconFamily: 'MaterialCommunityIcons',
-    iconName: 'cup',
+    iconImage: 'turibulo',
   },
   {
     id: 'santos-devocoes',
@@ -49,6 +55,21 @@ const CONTEUDOS = [
 ];
 
 function IconeConteudo({ item, size = 26 }) {
+  if (item.iconImage) {
+    const source = ICONES_IMAGEM[item.iconImage];
+    if (source) {
+      return (
+        <View style={styles.iconeImagemWrap}>
+          <Image
+            source={source}
+            style={styles.iconeImagem}
+            resizeMode="contain"
+          />
+        </View>
+      );
+    }
+  }
+
   if (item.iconFamily === 'Ionicons') {
     return <Ionicons name={item.iconName} size={size} color="#fff" />;
   }
@@ -59,6 +80,8 @@ function IconeConteudo({ item, size = 26 }) {
 }
 
 export default function Oracoes({ navigation }) {
+  const topPadding = useStatusBarPadding();
+
   const abrirConteudo = (item) => {
     if (item.id === 'oracao-coroinha') {
       navigation.navigate('OracaoCoroinha');
@@ -70,12 +93,29 @@ export default function Oracoes({ navigation }) {
       return;
     }
 
+    if (item.id === 'ordem-missa') {
+      navigation.navigate('OrdemMissa');
+      return;
+    }
+
+    if (item.id === 'funcoes-coroinha') {
+      navigation.navigate('FuncoesCoroinha');
+      return;
+    }
+
+    if (item.id === 'santos-devocoes') {
+      navigation.navigate('SantosDevocoes');
+      return;
+    }
+
     Alert.alert(item.titulo, 'Conteúdo em breve.');
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
+      <View style={[styles.container, { paddingTop: topPadding }]}>
+        <MenuNavegacao navigation={navigation} />
+
         <Text style={styles.titulo}>Orações e Liturgia</Text>
 
         <ScrollView
@@ -125,8 +165,8 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingTop: 40,
     paddingHorizontal: 20,
+    position: 'relative',
   },
 
   scroll: {
@@ -142,7 +182,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#001830',
+    marginTop: 8,
     marginBottom: 25,
+    paddingHorizontal: 40,
   },
 
   card: {
@@ -170,6 +212,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
+  },
+
+  iconeImagemWrap: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  iconeImagem: {
+    width: 30,
+    height: 30,
   },
 
   cardTexto: {

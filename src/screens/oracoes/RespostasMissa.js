@@ -3,12 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useStatusBarPadding } from '../../utils/safeArea';
 
 const ICONES_IMAGEM = {
   'ritos-iniciais': require('../../../assets/logo dos Ritos Iniciais.png'),
@@ -297,6 +298,7 @@ function SecaoAccordion({ secao, expandida, onToggle }) {
 }
 
 export default function RespostasMissa({ navigation }) {
+  const headerPaddingTop = useStatusBarPadding(4);
   const [categoriaAtiva, setCategoriaAtiva] = useState('todas');
   const [expandidas, setExpandidas] = useState(() =>
     Object.fromEntries(SECOES.map((s) => [s.id, s.id === 'ritos-iniciais']))
@@ -325,8 +327,8 @@ export default function RespostasMissa({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
+    <SafeAreaView style={styles.safe} edges={['left', 'right', 'bottom']}>
+      <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.headerSide}
@@ -415,7 +417,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 4,
     paddingBottom: 2,
     marginBottom: 4,
   },
