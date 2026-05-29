@@ -29,23 +29,23 @@ const SANTOS = [
     id: 'nossa-senhora',
     nome: 'Nossa Senhora',
     descricao: 'Mãe de Jesus e nossa Mãe.',
-    imagem: require('../../../assets/santa-nossa-senhora.png'),
+    imagem: require('../../../assets/nossa-senhora-nova.png'),
   },
   {
     id: 'santo-afonso',
     nome: 'Santo Afonso Maria de Ligório',
     descricao: 'Doutor da Igreja e grande missionário.',
-    imagem: require('../../../assets/santo-afonso.png'),
+    imagem: require('../../../assets/santo-afonso-novo.png'),
   },
   {
     id: 'sao-domingos-savio',
     nome: 'São Domingos Sávio',
     descricao: 'Exemplo de pureza e alegria.',
-    imagem: require('../../../assets/sao-domingos-savio.png'),
+    imagem: require('../../../assets/sao-domingos-savio-novo.png'),
   },
 ];
 
-function FotoSanto({ source, size = 52, grande = false }) {
+function FotoSanto({ source, size = 46, grande = false }) {
   const dim = grande ? 88 : size;
 
   return (
@@ -101,6 +101,10 @@ export default function SantosDevocoes({ navigation }) {
 
           <View style={styles.headerSide} />
         </View>
+
+        <Text style={styles.headerSubtitle}>
+          Os santos nos ensinam que servir ao altar é servir a Cristo.
+        </Text>
       </View>
 
       <ScrollView
@@ -135,6 +139,15 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+
+  headerSubtitle: {
+    marginTop: 10,
+    fontSize: 13,
+    color: CINZA_TEXTO,
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 18,
   },
 
   headerBlock: {
@@ -227,15 +240,17 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    backgroundColor: '#F5EFE0',
-    borderWidth: 2,
+    backgroundColor: '#FFFDF8',
+    borderWidth: 1,
     borderColor: '#E8D4A8',
     overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   avatarFoto: {
-    width: '100%',
-    height: '100%',
+    width: '115%',
+    height: '115%',
   },
 
   avatarGrande: {

@@ -491,12 +491,17 @@ export default function Escala({ navigation, route }) {
     '2026-05-24': [
       {
         day: 'DOM',
-        number: '26',
+        number: '24',
         month: 'MAI',
-        time: '18h00 • Matriz São José',
+        time: '08hs - Igreja Matriz Nossa Senhora de Nazaré.',
         items: [
-          'Servir:: Pedro e Gabriel',
-          'Sino: Pedro',
+          'Turíbulo: Gabriel',
+          'Naveta: Pedro',
+          'Cruz: Matheus',
+          'Velas: João e Gabriel',
+          'Servir: Matheus, João e Gabriel',
+          'Sino: Matheus',
+          'Missal: Pedro',
         ],
       },
     ],
