@@ -46,7 +46,7 @@ export default function SobreApp({ navigation }) {
         <View style={styles.identidade}>
           <View style={styles.logoWrap}>
             <Image
-              source={require('../../../assets/icon-calice.png')}
+              source={require('../../../assets/background1.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -80,7 +80,7 @@ export default function SobreApp({ navigation }) {
           />
           <View style={styles.infoTexto}>
             <Text style={styles.infoTitulo}>Desenvolvedor</Text>
-            <Text style={styles.infoDescricao}>Joab Alves</Text>
+            <Text style={styles.infoDescricao}>Matheus Morais</Text>
           </View>
         </View>
 

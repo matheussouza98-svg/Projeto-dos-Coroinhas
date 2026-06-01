@@ -69,6 +69,21 @@ export default function Perfil({ navigation }) {
       return;
     }
 
+    if (item.id === 'notificacoes') {
+      navigation.navigate('Notificacoes');
+      return;
+    }
+
+    if (item.id === 'privacidade') {
+      navigation.navigate('Privacidade');
+      return;
+    }
+
+    if (item.id === 'conta') {
+      navigation.navigate('Conta');
+      return;
+    }
+
     Alert.alert(item.titulo, 'Conteúdo em breve.');
   };
 
