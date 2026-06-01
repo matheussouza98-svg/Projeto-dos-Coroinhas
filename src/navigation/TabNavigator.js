@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Inicio from '../screens/home/Inicio';
 import Escala from '../screens/home/Escala';
 import OracoesNavigator from './OracoesNavigator';
-import Perfil from '../screens/home/Perfil';
+import PerfilNavigator from './PerfilNavigator';
 import { TAB_BAR } from '../constants';
 
 const Tab = createBottomTabNavigator();
@@ -55,7 +55,7 @@ export default function TabNavigator() {
       />
       <Tab.Screen
         name="Perfil"
-        component={Perfil}
+        component={PerfilNavigator}
         options={{ tabBarLabel: 'Perfil' }}
       />
     </Tab.Navigator>

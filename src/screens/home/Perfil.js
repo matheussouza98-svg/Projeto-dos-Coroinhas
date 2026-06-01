@@ -64,6 +64,11 @@ export default function Perfil({ navigation }) {
   const topPadding = useStatusBarPadding();
 
   const abrirOpcao = (item) => {
+    if (item.id === 'suporte') {
+      navigation.navigate('Suporte');
+      return;
+    }
+
     Alert.alert(item.titulo, 'Conteúdo em breve.');
   };
 
