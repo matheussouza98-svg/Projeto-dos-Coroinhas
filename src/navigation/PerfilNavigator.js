@@ -14,6 +14,7 @@ import SobreApp from '../screens/suporte/SobreApp';
 import NotificacoesScreen from '../screens/perfil/NotificacoesScreen';
 import Privacidade from '../screens/perfil/Privacidade';
 import ContaScreen from '../screens/perfil/ContaScreen';
+import AparenciaScreen from '../screens/perfil/AparenciaScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,11 +40,18 @@ export default function PerfilNavigator() {
         name="Privacidade"
         component={Privacidade}
       />
-      
+
       {/* CONTA */}
       <Stack.Screen
         name="Conta"
         component={ContaScreen}
+      />
+
+      {/* APARENCIA */}
+      <Stack.Screen
+        name="Aparencia"
+        component={AparenciaScreen}
+        options={{ headerShown: false }}
       />
 
       {/* SUPORTE */}

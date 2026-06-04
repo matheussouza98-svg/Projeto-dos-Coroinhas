@@ -84,6 +84,11 @@ export default function Perfil({ navigation }) {
       return;
     }
 
+    if (item.id === 'aparencia') {
+      navigation.navigate('Aparencia');
+      return;
+    }
+
     Alert.alert(item.titulo, 'Conteúdo em breve.');
   };
 
