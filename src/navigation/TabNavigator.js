@@ -2,11 +2,11 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import Inicio from '../screens/home/Inicio';
-import Escala from '../screens/home/Escala';
+import Inicio from '@/features/home/screens/Inicio';
+import Escala from '@/features/home/screens/Escala';
 import OracoesNavigator from './OracoesNavigator';
 import PerfilNavigator from './PerfilNavigator';
-import { TAB_BAR } from '../constants';
+import { TAB_BAR } from '@/shared/constants';
 
 const Tab = createBottomTabNavigator();
 

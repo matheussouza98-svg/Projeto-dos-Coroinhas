@@ -1,12 +1,12 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Oracoes from '../screens/home/Oracoes';
-import OracaoCoroinha from '../screens/oracoes/OracaoCoroinha';
-import RespostasMissa from '../screens/oracoes/RespostasMissa';
-import OrdemMissa from '../screens/oracoes/OrdemMissa';
-import FuncoesCoroinha from '../screens/oracoes/FuncoesCoroinha';
-import SantosDevocoes from '../screens/oracoes/SantosDevocoes';
+import Oracoes from '@/features/home/screens/Oracoes';
+import OracaoCoroinha from '@/features/oracoes/screens/OracaoCoroinha';
+import RespostasMissa from '@/features/oracoes/screens/RespostasMissa';
+import OrdemMissa from '@/features/oracoes/screens/OrdemMissa';
+import FuncoesCoroinha from '@/features/oracoes/screens/FuncoesCoroinha';
+import SantosDevocoes from '@/features/oracoes/screens/SantosDevocoes';
 
 const Stack = createNativeStackNavigator();
 
