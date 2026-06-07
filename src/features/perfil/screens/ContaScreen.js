@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -17,11 +17,55 @@ import { Ionicons } from '@expo/vector-icons';
 import SuporteHeader from '@/shared/components/layout/SuporteHeader';
 import DataNascimentoField from '@/shared/components/forms/DataNascimentoField';
 import { usePerfilSession } from '@/features/perfil/context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ContaScreen({ navigation }) {
     const [dataNascimento, setDataNascimento] = useState('');
+    const [telefone, setTelefone] = useState('');
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('');
     const { fotoUri, setFotoUri } = usePerfilSession();
     const [modalFotoAberto, setModalFotoAberto] = useState(false);
+
+    function formatarTelefone(texto) {
+        const numeros = texto.replace(/\D/g, '');
+
+        if (numeros.length === 0) {
+            return '';
+        }
+
+        if (numeros.length <= 2) {
+            return `(${numeros}`;
+        }
+
+        if (numeros.length <= 7) {
+            return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+        }
+
+        return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7, 11)}`;
+    }
+
+    useEffect(() => {
+        async function carregarDados() {
+            try {
+                const nomeSalvo = await AsyncStorage.getItem('nome');
+                const emailSalvo = await AsyncStorage.getItem('email');
+                const telefoneSalvo = await AsyncStorage.getItem('telefone');
+                const dataSalva = await AsyncStorage.getItem('dataNascimento');
+                const fotoSalva = await AsyncStorage.getItem('fotoUri');
+
+                if (fotoSalva) setFotoUri(fotoSalva);
+                if (nomeSalvo) setNome(nomeSalvo);
+                if (emailSalvo) setEmail(emailSalvo);
+                if (telefoneSalvo) setTelefone(telefoneSalvo);
+                if (dataSalva) setDataNascimento(dataSalva);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        carregarDados();
+    }, []);
 
     async function abrirGaleria() {
         try {
@@ -103,86 +147,106 @@ export default function ContaScreen({ navigation }) {
         setModalFotoAberto(true);
     }
 
-    function salvarAlteracoes() {
-        Alert.alert('Sucesso', 'Alterações salvas com sucesso!');
+    async function salvarAlteracoes() {
+        Alert.alert('Teste', 'Botão funcionando');
+
+        try {
+            await AsyncStorage.setItem('nome', nome);
+            await AsyncStorage.setItem('email', email);
+            await AsyncStorage.setItem('telefone', telefone);
+            await AsyncStorage.setItem('dataNascimento', dataNascimento);
+            await AsyncStorage.setItem('fotoUri', fotoUri || '');
+
+            Alert.alert('Sucesso', 'Alterações salvas com sucesso!');
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível salvar os dados.');
+        }
     }
 
     return (
         <>
-        <ScrollView style={styles.container}>
+            <ScrollView style={styles.container}>
 
-            <SuporteHeader
-                title="Conta"
-                navigation={navigation}
-            />
+                <SuporteHeader
+                    title="Conta"
+                    navigation={navigation}
+                />
 
-            <TouchableOpacity
-                style={styles.avatarContainer}
-                onPress={escolherFoto}
-                activeOpacity={0.85}
-            >
-                {fotoUri ? (
-                    <Image
-                        source={{ uri: fotoUri }}
-                        style={styles.avatarFoto}
-                        contentFit="cover"
-                    />
-                ) : (
-                    <View style={styles.avatarPlaceholder}>
-                        <Ionicons
-                            name="person"
-                            size={48}
-                            color="#001F4D"
+                <TouchableOpacity
+                    style={styles.avatarContainer}
+                    onPress={escolherFoto}
+                    activeOpacity={0.85}
+                >
+                    {fotoUri ? (
+                        <Image
+                            source={{ uri: fotoUri }}
+                            style={styles.avatarFoto}
+                            contentFit="cover"
                         />
+                    ) : (
+                        <View style={styles.avatarPlaceholder}>
+                            <Ionicons
+                                name="person"
+                                size={48}
+                                color="#001F4D"
+                            />
+                        </View>
+                    )}
+
+                    <View style={styles.avatarBadge}>
+                        <Ionicons name="camera" size={16} color="#FFF" />
                     </View>
-                )}
+                </TouchableOpacity>
 
-                <View style={styles.avatarBadge}>
-                    <Ionicons name="camera" size={16} color="#FFF" />
-                </View>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={escolherFoto} activeOpacity={0.7}>
+                    <Text style={styles.avatarHint}>Toque para adicionar ou alterar a foto</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity onPress={escolherFoto} activeOpacity={0.7}>
-                <Text style={styles.avatarHint}>Toque para adicionar ou alterar a foto</Text>
-            </TouchableOpacity>
+                <Text style={styles.label}>Nome completo:</Text>
+                <TextInput
+                    style={styles.input}
+                    value={nome}
+                    onChangeText={setNome}
+                    placeholder="Digite seu nome completo"
+                />
 
-            <Text style={styles.label}>Nome completo:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="João da Silva"
-                placeholderTextColor="#9CA3AF"
-            />
+                <Text style={styles.label}>E-mail:</Text>
+                <TextInput
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="seuemail@exemplo.com"
+                />
 
-            <Text style={styles.label}>E-mail:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="joao.silva@email.com"
-                placeholderTextColor="#9CA3AF"
-            />
+                <Text style={styles.label}>Telefone:</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="(00) 00000-0000"
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="phone-pad"
+                    value={telefone}
+                    onChangeText={(texto) => {
+                        setTelefone(formatarTelefone(texto));
+                    }}
+                    maxLength={15}
+                />
 
-            <Text style={styles.label}>Telefone:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="(85) 99999-9999"
-                placeholderTextColor="#9CA3AF"
-            />
+                <Text style={styles.label}>Data de nascimento:</Text>
+                <DataNascimentoField
+                    value={dataNascimento}
+                    onChange={setDataNascimento}
+                    wrapperStyle={styles.dateWrapper}
+                    inputStyle={styles.dateInput}
+                    iconButtonStyle={styles.calendarIcon}
+                    iconColor="#6B7280"
+                />
 
-            <Text style={styles.label}>Data de nascimento:</Text>
-            <DataNascimentoField
-                value={dataNascimento}
-                onChange={setDataNascimento}
-                wrapperStyle={styles.dateWrapper}
-                inputStyle={styles.dateInput}
-                iconButtonStyle={styles.calendarIcon}
-                iconColor="#6B7280"
-            />
-
-            <TouchableOpacity style={styles.botao} onPress={salvarAlteracoes}>
-                <Text style={styles.textoBotao}>
-                    Salvar alterações
-                </Text>
-            </TouchableOpacity>
-        </ScrollView>
+                <TouchableOpacity style={styles.botao} onPress={salvarAlteracoes}>
+                    <Text style={styles.textoBotao}>
+                        Salvar alterações
+                    </Text>
+                </TouchableOpacity>
+            </ScrollView>
 
             <Modal
                 transparent
